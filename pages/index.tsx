@@ -1,4 +1,5 @@
 import { FC, useEffect } from "react";
+import useWasm from "../hooks/useWasm";
 
 declare global {
     var Module: {
@@ -12,48 +13,25 @@ declare global {
 }
 
 const Home: FC = () => {
-      
-    useEffect( () => {
-        const path ='/app.wasm';
-        ( async() => {
-            
-            const importObject: WebAssembly.Imports = {
-                env: {
-                    "abort": function(){},
-                    "emscripten_memcpy_big": function(){},
-                    "emscripten_resize_heap": function(){},
-                    "environ_get": function(){},
-                    "environ_sizes_get": function(){},
-                    "fd_close": function(){},
-                    "fd_read": function(){},
-                    "fd_seek": function(){},
-                    "fd_write": function(){},
-                    "strftime_l": function(){},
-                    "wasi_snapshot_preview1": () => ""
-                }
-              };              
-            
-            const data = await fetch( path )
-            const arr = await data.arrayBuffer()
 
-            const module = new WebAssembly.Module( arr ) as any
-            const instance = await WebAssembly.instantiate( module, ({ "wasi_snapshot_preview1": () => "", env: { "proc_exit": function(){}  }} as any) );
-
-            console.log( instance )
-        } )()
-        
-    }, [] )
+    // const result = useWasm<number[]>( {
+    //     args: [ 4., 3 ],
+    //     argTypes: [ "double", "int" ],
+    //     returnType: "double",
+    //     name: 'bezier'
+    // } )
 
     return (
         <div>
             <button onClick={ () => {
 
                 const result = Module.ccall(
-                    "myFunction",  // name of C function
-                    null,          // return type
-                    null,          // argument types
-                    null           // arguments
-                );  
+                    "bezier",                // name of C function
+                    [ "double" ],              // return type
+                    [ 'double', 'int' ],          // argument types
+                    [ 4.0, 3 ]                   // arguments
+                );   
+                console.log( result )
             } }>
                 call C func
             </button>

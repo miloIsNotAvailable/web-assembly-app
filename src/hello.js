@@ -1,7 +1,6 @@
 
 
 // The Module object: Our interface to the outside world. We import
-
 // and export values on it. There are various ways Module can be used:
 // 1. Not defined. We create it here
 // 2. A function parameter, function(Module) { ..generated code.. }
@@ -995,7 +994,7 @@ function createExportWrapper(name, fixedasm) {
 }
 
 var wasmBinaryFile;
-  wasmBinaryFile = '/hello.wasm';
+  wasmBinaryFile = '../hello.wasm';
   if (!isDataURI(wasmBinaryFile)) {
     wasmBinaryFile = locateFile(wasmBinaryFile);
   }
@@ -1129,12 +1128,7 @@ function createWasm() {
         //   https://github.com/emscripten-core/emscripten/pull/16917
         !ENVIRONMENT_IS_NODE &&
         typeof fetch == 'function') {
-      return fetch(wasmBinaryFile, { 
-        credentials: 'same-origin',   
-        headers: {
-          "Content-Type": "application/wasm",
-        }, 
-        }).then(function(response) {
+      return fetch(wasmBinaryFile, { credentials: 'same-origin' }).then(function(response) {
         // Suppress closure warning here since the upstream definition for
         // instantiateStreaming only allows Promise<Repsponse> rather than
         // an actual Response.
@@ -4343,6 +4337,12 @@ var ___wasm_call_ctors = Module["___wasm_call_ctors"] = createExportWrapper("__w
 
 /** @type {function(...*):?} */
 var _myFunction = Module["_myFunction"] = createExportWrapper("myFunction");
+
+/** @type {function(...*):?} */
+var _binomial = Module["_binomial"] = createExportWrapper("binomial");
+
+/** @type {function(...*):?} */
+var _bezier = Module["_bezier"] = createExportWrapper("bezier");
 
 /** @type {function(...*):?} */
 var _main = Module["_main"] = createExportWrapper("main");
