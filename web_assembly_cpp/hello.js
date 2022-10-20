@@ -1128,7 +1128,12 @@ function createWasm() {
         //   https://github.com/emscripten-core/emscripten/pull/16917
         !ENVIRONMENT_IS_NODE &&
         typeof fetch == 'function') {
-      return fetch(wasmBinaryFile, { credentials: 'same-origin' }).then(function(response) {
+      return fetch(wasmBinaryFile, { 
+        credentials: 'same-origin',   
+        headers: {
+          "Content-Type": "application/wasm",
+        }, 
+        }).then(function(response) {
         // Suppress closure warning here since the upstream definition for
         // instantiateStreaming only allows Promise<Repsponse> rather than
         // an actual Response.
