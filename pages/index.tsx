@@ -14,7 +14,7 @@ declare global {
 const Home: FC = () => {
       
     useEffect( () => {
-        const path ='/public/hello.wasm';
+        const path ='/hello.wasm';
         ( async() => {
             
             // const importObject: WebAssembly.Imports = {
