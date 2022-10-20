@@ -11,6 +11,7 @@ async function createServer() {
   const app = express()
 
   app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }))
+  app.use( express.static( path.join( process.cwd(), "/hello.wasm" ) ) )
 
   // parse application/json
   app.use(bodyParser.json( { limit: '50mb' } ))
