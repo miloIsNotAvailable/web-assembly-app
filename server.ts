@@ -11,7 +11,9 @@ async function createServer() {
   const app = express()
 
   app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }))
-
+  const publicDirectoryPath = path.join(__dirname, '../public/')
+  app.use(express.static(publicDirectoryPath))
+  
   // parse application/json
   app.use(bodyParser.json( { limit: '50mb' } ))
 
