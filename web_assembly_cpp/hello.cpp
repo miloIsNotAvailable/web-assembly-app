@@ -1,18 +1,14 @@
 #include <iostream>
 #include <emscripten/emscripten.h>
 #include<math.h>
+#include <vector>
 
+using std::vector;
 using namespace std;
+// typedef double float double;
 
 void print( const char* input ) {
     cout << input << "\n";
-}
-
-int main()
-{
-    print( "Hello world!" );
-
-    return 0;
 }
 
 // gets converted to _[function name]
@@ -47,6 +43,47 @@ extern "C" {
         return sum;
     }
 
-    // TODO: compute points for 2 dimensional vectors
+    tuple<vector<double>, vector<double>> computeBezier( vector<double> vx, vector<double> vy ) {
+
+        vector<double> curveX;
+        vector<double> curveY;
+
+        int n = vx.size() - 1;
+
+        for( double t = 0.; t < 1.; t += 0.01 ) {
+
+            double curveXpoint{ 0 };
+            double curveYpoint{ 0 };
+
+            for( int i = 0; i <= n; i++ ) {
+
+                curveXpoint = curveXpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vx[i];
+                curveYpoint = curveYpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vy[i];
+            }
+        
+            curveX.push_back( curveXpoint );
+            curveY.push_back( curveYpoint );
+        }
+
+        for( auto i: curveX ) {
+            cout << i << '\n';
+        }
+        
+        return make_tuple( curveX, curveY );
+    }
+
+    tuple<vector<double>, vector<double>> getTuple(){
+            
+        std::vector<double> xX{2.5, 1.5, 6, 10};
+        std::vector<double> yY{0.5, 5, 5, 0.5};
+
+        return computeBezier( xX, yY );
+    }
 }
 
+int main()
+{
+    print( "Hello world!" );
+
+    return 0;
+}

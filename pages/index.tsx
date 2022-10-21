@@ -26,10 +26,10 @@ const Home: FC = () => {
             <button onClick={ () => {
 
                 const result = Module.ccall(
-                    "bezier",                // name of C function
-                    [ "double" ],              // return type
-                    [ 'double', 'int' ],          // argument types
-                    [ 4.0, 3 ]                   // arguments
+                    "computeBezier",                // name of C function
+                    [ "tuple<vector<double>, vector<double>>" ],              // return type
+                    [ 'vector<double>', 'vector<double>' ],          // argument types
+                    [ [ 2.5, 1.5, 6, 10 ], [ 0.5, 5, 5, 0.5 ] ]                   // arguments
                 );   
                 console.log( result )
             } }>
