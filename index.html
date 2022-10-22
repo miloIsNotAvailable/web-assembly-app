@@ -4288,6 +4288,8 @@
       }
     }
 
+
+
     var FSNode = /** @constructor */ function (parent, name, mode, rdev) {
       if (!parent) {
         parent = this;  // root node sets parent to itself
@@ -4496,6 +4498,9 @@
     var _getTuple = Module["_getTuple"] = createExportWrapper("getTuple");
 
     /** @type {function(...*):?} */
+    var _copy_array = Module["_copy_array"] = createExportWrapper("copy_array");
+
+    /** @type {function(...*):?} */
     var _main = Module["_main"] = createExportWrapper("main");
 
     /** @type {function(...*):?} */
@@ -4562,6 +4567,8 @@
 
     Module["ccall"] = ccall;
     Module["cwrap"] = cwrap;
+    Module["setValue"] = setValue;
+    Module["getValue"] = getValue;
     var unexportedRuntimeSymbols = [
       'run',
       'UTF8ArrayToString',
@@ -4676,8 +4683,6 @@
       'strLen',
       'reSign',
       'formatString',
-      'setValue',
-      'getValue',
       'PATH',
       'PATH_FS',
       'intArrayFromString',

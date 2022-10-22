@@ -49,6 +49,7 @@ extern "C" {
         vector<double> curveY;
 
         int n = vx.size() - 1;
+        int v = 0;
 
         for( double t = 0.; t < 1.; t += 0.01 ) {
 
@@ -59,25 +60,50 @@ extern "C" {
 
                 curveXpoint = curveXpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vx[i];
                 curveYpoint = curveYpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vy[i];
+                
             }
-        
+            
             curveX.push_back( curveXpoint );
             curveY.push_back( curveYpoint );
         }
 
-        for( auto i: curveX ) {
-            cout << i << '\n';
+        for( auto i: curveX) {
+            cout << "i ->" << i << '\n';
+        }
+
+        for( auto i: curveY) {
+            cout << "j ->" << i << '\n';
         }
         
         return make_tuple( curveX, curveY );
     }
 
-    tuple<vector<double>, vector<double>> getTuple(){
+    vector<double>* getTuple( vector<double>* v ){
             
-        std::vector<double> xX{2.5, 1.5, 6, 10};
-        std::vector<double> yY{0.5, 5, 5, 0.5};
+        std::vector<double> xX{2.5, 1.5, 6, 10, 7, 3};
+        std::vector<double> yY{0.5, 5.0, 5.0, 0.5, 1.0 , 2.0};
 
-        return computeBezier( xX, yY );
+        vector<double> &out = *v;
+
+        // (*v)[0] = 10.;
+        // (*v)[1] = 3.3;
+        // (*v)[2] = 1.5;
+
+        for( int i = 0; i < 3; i ++ ) {
+            // out[i] = out[i] * 2.;
+            (*v)[i] *= 2.;
+            cout << (*v)[i] << "\n";
+        }
+
+        return v;
+    }
+
+    int* copy_array(int* in_array, int length) {
+        int out_array[3] = { 1, 2, 3 };
+        // for (int i=0; i<length; i++) {
+        //     out_array[i] = in_array[i];
+        // }
+    return out_array;
     }
 }
 
