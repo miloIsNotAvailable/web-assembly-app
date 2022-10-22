@@ -98,11 +98,13 @@ extern "C" {
         return v;
     }
 
-    int* copy_array(int* in_array, int length) {
-        int out_array[3] = { 1, 2, 3 };
-        // for (int i=0; i<length; i++) {
-        //     out_array[i] = in_array[i];
-        // }
+    int* copy_array(int in_array[], int length) {
+        int out_array[length];
+        for (int i=0; i<length; i++) {
+            in_array[i] = in_array[i] * 2;
+            out_array[i] = in_array[i];
+            cout << in_array[i] << "\n";
+        }
     return out_array;
     }
 }
