@@ -14,19 +14,31 @@ declare global {
 
 const Home: FC = () => {
 
-    // Takes an Int32Array, copies it to the heap and returns a pointer
-    function arrayToPtr( array: any[] ) {
-        const v = (Module as any)._malloc( array.length * 8 )
-        const e = (Module as any).HEAPF64.set(new Float64Array( array ), v / 8 )
-
-        return v
-        }
-
         // Takes a pointer and  array length, and returns a Int32Array from the heap
         function ptrToArray(ptr: any, length: number) {
-        var array = new Uint32Array( length )
-        var pos = ptr / 8
-        array.set((Module as any).HEAPU32.subarray(pos, pos + length))
+        
+            /**
+             * @params array 
+             * @description is the array, 
+             * with defined byte size, the 
+             * byte size has to be the same as the 
+             * inner array:
+             * @example 
+             * const arr = new Uint8Array( new Uint32Array( [3, 8, 2] ).buffer )  
+             */
+            var array = new Float64Array( length )
+        
+            // to get position divide by 8 
+            // ex. 32 int array -> 32 / 8 = 4
+            var pos = ptr / 8
+
+            // move he pointers around and get all the values 
+            // in the array
+            array
+            .set((Module as any)
+            .HEAPF64
+            .subarray(pos, pos + length))
+
         return array
         }
 
@@ -34,10 +46,15 @@ const Home: FC = () => {
         <div>
             <button onClick={ () => {
 
-                // console.log( arrayToPtr( [ 2.5, 1.5, 6, 10 ] ) )
-                const inArr: any = [ 2.5, 1.5, 6, 10 ]
-                const v = arrayToPtr( inArr )
-                const arr = new Uint8Array( new Uint32Array( [3, 8, 2] ).buffer )
+                var data = new Float64Array([0.1, 0.1, 0.1]);
+
+                var buffer = new ArrayBuffer(data.byteLength);
+                var floatView = new Float64Array(buffer).set(data);
+                var byteView = new Uint8Array(buffer);
+
+                
+                const arr = new Uint8Array( new Float64Array( [3.1, 8.1, 2.2] ).buffer )
+                console.log( byteView, arr )
 
                 const result = Module.ccall(
                     "copy_array",                // name of C function
@@ -46,10 +63,11 @@ const Home: FC = () => {
                     [ arr, 3 ]                  // arguments
                 );   
 
-                for( let i = 0; i <= 8; i+=4 ) {
+                for( let i = 0; i <= 16; i+=8 ) {
 
-                    console.log( ( Module as any ).getValue( result + i ) )
+                    console.log( ( Module as any ).getValue( result + i, 'double' ) )
                 }
+                console.log( ptrToArray( result, 3 ) )
             } }>
                 call C func
             </button>

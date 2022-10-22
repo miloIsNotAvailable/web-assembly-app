@@ -98,8 +98,8 @@ extern "C" {
         return v;
     }
 
-    int* copy_array(int in_array[], int length) {
-        int out_array[length];
+    double* copy_array(double in_array[], int length) {
+        double out_array[length];
         for (int i=0; i<length; i++) {
             in_array[i] = in_array[i] * 2;
             out_array[i] = in_array[i];
