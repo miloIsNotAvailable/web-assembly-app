@@ -1,5 +1,5 @@
 import { FC, useEffect } from "react";
-import useWasm from "../hooks/useWasm";
+import { WasmFloat64Array } from "../constants/wasm_arrays/WasmFloat64Array";
 
 declare global {
     var Module: {
@@ -14,60 +14,32 @@ declare global {
 
 const Home: FC = () => {
 
-        // Takes a pointer and  array length, and returns a Int32Array from the heap
-        function ptrToArray(ptr: any, length: number) {
-        
-            /**
-             * @params array 
-             * @description is the array, 
-             * with defined byte size, the 
-             * byte size has to be the same as the 
-             * inner array:
-             * @example 
-             * const arr = new Uint8Array( new Uint32Array( [3, 8, 2] ).buffer )  
-             */
-            var array = new Float64Array( length )
-        
-            // to get position divide by 8 
-            // ex. 32 int array -> 32 / 8 = 4
-            var pos = ptr / 8
+    const arrToPtr = ( array: any ) => {
+        const ptr: any = (Module as any)._malloc( array.length * 8 )
+        const e = (Module as any).HEAPF64.set( array, ptr / 8 )
 
-            // move he pointers around and get all the values 
-            // in the array
-            array
-            .set((Module as any)
-            .HEAPF64
-            .subarray(pos, pos + length))
-
-        return array
-        }
+        return ptr
+    }
 
     return (
         <div>
             <button onClick={ () => {
 
-                var data = new Float64Array([0.1, 0.1, 0.1]);
+                const WasmArr = new WasmFloat64Array( [ 2.4, 5.6, 1.1, 2.12, 4.12 ] )
 
-                var buffer = new ArrayBuffer(data.byteLength);
-                var floatView = new Float64Array(buffer).set(data);
-                var byteView = new Uint8Array(buffer);
-
-                
-                const arr = new Uint8Array( new Float64Array( [3.1, 8.1, 2.2] ).buffer )
-                console.log( byteView, arr )
+                const ptr = arrToPtr( new Float64Array( [ 2.4, 5.6, 1.1, 2.12, 4.12 ] ) )
 
                 const result = Module.ccall(
-                    "copy_array",                // name of C function
-                    [ "array" ],              // return type
-                    [ 'array', 'number' ],          // argument types
-                    [ arr, 3 ]                  // arguments
+                    "getTuple",                // name of C function
+                    [ "number" ],              // return type
+                    [ "array" ],          // argument types
+                    [ WasmArr.arr ]                  // arguments
                 );   
 
-                for( let i = 0; i <= 16; i+=8 ) {
-
-                    console.log( ( Module as any ).getValue( result + i, 'double' ) )
-                }
-                console.log( ptrToArray( result, 3 ) )
+                // for( let i = 0; i <= 16; i+=8 ) {
+                //     console.log( ( Module as any ).getValue( result + i, 'double' ) )
+                // }
+                console.log( WasmArr.convert( result ) )
             } }>
                 call C func
             </button>

@@ -78,24 +78,30 @@ extern "C" {
         return make_tuple( curveX, curveY );
     }
 
-    vector<double>* getTuple( vector<double>* v ){
+    void Print( vector<double>& v ) {
+        for( auto& i: v ) {
+            cout << i << endl;
+        }
+    }
+
+    double* getTuple( double v[] ){
             
-        std::vector<double> xX{2.5, 1.5, 6, 10, 7, 3};
-        std::vector<double> yY{0.5, 5.0, 5.0, 0.5, 1.0 , 2.0};
+        std::vector<double> xX{0., 1., 2., 3.};
+        std::vector<double> yY{0., 1., 2., 3.};
 
-        vector<double> &out = *v;
+        // convert array to vector
+        vector<double> out( v, v + sizeof v + 1 );
 
-        // (*v)[0] = 10.;
-        // (*v)[1] = 3.3;
-        // (*v)[2] = 1.5;
-
-        for( int i = 0; i < 3; i ++ ) {
-            // out[i] = out[i] * 2.;
-            (*v)[i] *= 2.;
-            cout << (*v)[i] << "\n";
+        for( int i = 0; i < out.size(); i++ ) {
+            out[i] = out[i] * 2.;
+            cout << out[i] << endl;
         }
 
-        return v;
+        computeBezier( out, yY );
+        // convert vector to array
+        double* out_arr = &out[0];
+        
+        return out_arr;
     }
 
     double* copy_array(double in_array[], int length) {
