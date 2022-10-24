@@ -25,24 +25,27 @@ const Home: FC = () => {
         <div>
             <button onClick={ () => {
 
-                const WasmArr = new WasmFloat64Array( [ 2.4, 5.6, 1.1, 2.12, 4.12 ] )
+                const WasmArrX = new WasmFloat64Array( [ 2.4, 5.6, 1.1, 2.12, 4.12 ] )
+                const WasmArrY = new WasmFloat64Array( [ 1.5, 3.2, 5.6, 3.3, 3. ] )
 
                 const ptr = arrToPtr( new Float64Array( [ 2.4, 5.6, 1.1, 2.12, 4.12 ] ) )
 
                 const result = Module.ccall(
-                    "getTuple",                // name of C function
+                    "computeBezier",                // name of C function
                     [ "number" ],              // return type
-                    [ "array" ],          // argument types
-                    [ WasmArr.arr ]                  // arguments
+                    [ "array", "array" ],          // argument types
+                    [ WasmArrX.arr, WasmArrY.arr ]                  // arguments
                 );   
 
                 // for( let i = 0; i <= 16; i+=8 ) {
                 //     console.log( ( Module as any ).getValue( result + i, 'double' ) )
                 // }
-                console.log( WasmArr.convert( result ) )
+                console.log( WasmArrX.convert( result, 100 ) )
+                // console.log( WasmArrY.convert( result ) )
             } }>
                 call C func
             </button>
+            <canvas id="canvas"/>
         </div>
     )
 }

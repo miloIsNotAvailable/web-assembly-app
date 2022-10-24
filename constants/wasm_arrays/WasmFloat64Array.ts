@@ -8,8 +8,8 @@ export const WasmFloat64Array = class {
         this.arr = new Uint8Array( new Float64Array( this.arr_ ).buffer )
     }
 
-    convert( result: any ) {
-        return this.ptrToArray( result, this.arr_.length )
+    convert( result: any, length: any = this.arr_.length ) {
+        return this.ptrToArray( result, length )
     }
 
     // Takes a pointer and  array length, and returns a Int32Array from the heap

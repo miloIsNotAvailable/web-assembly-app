@@ -43,12 +43,16 @@ extern "C" {
         return sum;
     }
 
-    tuple<vector<double>, vector<double>> computeBezier( vector<double> vx, vector<double> vy ) {
+    double* computeBezier( double vx[], double vy[] ) {
 
         vector<double> curveX;
         vector<double> curveY;
 
-        int n = vx.size() - 1;
+        // convert array to vector
+        vector<double> vx_vec( vx, vx + sizeof vx + 1 );
+        vector<double> vy_vec( vy, vy + sizeof vy + 1 );
+
+        int n = vx_vec.size() - 1;
         int v = 0;
 
         for( double t = 0.; t < 1.; t += 0.01 ) {
@@ -58,8 +62,8 @@ extern "C" {
 
             for( int i = 0; i <= n; i++ ) {
 
-                curveXpoint = curveXpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vx[i];
-                curveYpoint = curveYpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vy[i];
+                curveXpoint = curveXpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vx_vec[i];
+                curveYpoint = curveYpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vy_vec[i];
                 
             }
             
@@ -75,7 +79,10 @@ extern "C" {
             cout << "j ->" << i << '\n';
         }
         
-        return make_tuple( curveX, curveY );
+        double* curveX_arr = &curveX[0];
+        double* curveY_arr = &curveY[0];
+
+        return curveX_arr;
     }
 
     void Print( vector<double>& v ) {
@@ -84,25 +91,26 @@ extern "C" {
         }
     }
 
-    double* getTuple( double v[] ){
+    // double* getTuple( double vx[], double vy[] ){
             
-        std::vector<double> xX{0., 1., 2., 3.};
-        std::vector<double> yY{0., 1., 2., 3.};
+    //     std::vector<double> xX{0., 1., 2., 3.};
+    //     std::vector<double> yY{0., 1., 2., 3.};
 
-        // convert array to vector
-        vector<double> out( v, v + sizeof v + 1 );
+    //     // convert array to vector
+    //     vector<double> outx( vx, vx + sizeof vx + 1 );
+    //     vector<double> outy( vy, vy + sizeof vy + 1 );
 
-        for( int i = 0; i < out.size(); i++ ) {
-            out[i] = out[i] * 2.;
-            cout << out[i] << endl;
-        }
+    //     for( int i = 0; i < outx.size(); i++ ) {
+    //         // out[i] = out[i] * 2.;
+    //         // cout << out[i] << endl;
+    //     }
 
-        computeBezier( out, yY );
-        // convert vector to array
-        double* out_arr = &out[0];
+    //     computeBezier( outx, outy );
+    //     // convert vector to array
+    //     double* out_arr = &outx[0];
         
-        return out_arr;
-    }
+    //     return out_arr;
+    // }
 
     double* copy_array(double in_array[], int length) {
         double out_array[length];

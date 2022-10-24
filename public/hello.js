@@ -4457,9 +4457,6 @@ var _bezier = Module["_bezier"] = createExportWrapper("bezier");
 var _computeBezier = Module["_computeBezier"] = createExportWrapper("computeBezier");
 
 /** @type {function(...*):?} */
-var _getTuple = Module["_getTuple"] = createExportWrapper("getTuple");
-
-/** @type {function(...*):?} */
 var _copy_array = Module["_copy_array"] = createExportWrapper("copy_array");
 
 /** @type {function(...*):?} */
