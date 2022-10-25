@@ -21,14 +21,14 @@ const Home: FC = () => {
         return ptr
     }
 
-    useEffect( () => {
-        const result = Module.ccall(
-            "load_webgl",                // name of C function
-            [ "" ],              // return type
-            [ "", "" ],          // argument types
-            [  ]                  // arguments
-        );   
-    }, [] )
+    // useEffect( () => {
+    //     const result = Module.ccall(
+    //         "load_webgl",                // name of C function
+    //         [ "" ],              // return type
+    //         [ "", "" ],          // argument types
+    //         [  ]                  // arguments
+    //     );   
+    // }, [] )
 
     return (
         <div>
