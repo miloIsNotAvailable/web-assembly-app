@@ -21,6 +21,15 @@ const Home: FC = () => {
         return ptr
     }
 
+    useEffect( () => {
+        const result = Module.ccall(
+            "load_webgl",                // name of C function
+            [ "" ],              // return type
+            [ "", "" ],          // argument types
+            [  ]                  // arguments
+        );   
+    }, [] )
+
     return (
         <div>
             <button onClick={ () => {
@@ -32,7 +41,7 @@ const Home: FC = () => {
 
                 const result = Module.ccall(
                     "computeBezier",                // name of C function
-                    [ "number" ],              // return type
+                    [ "array" ],              // return type
                     [ "array", "array" ],          // argument types
                     [ WasmArrX.arr, WasmArrY.arr ]                  // arguments
                 );   
@@ -41,11 +50,10 @@ const Home: FC = () => {
                 //     console.log( ( Module as any ).getValue( result + i, 'double' ) )
                 // }
                 console.log( WasmArrX.convert( result, 100 ) )
-                // console.log( WasmArrY.convert( result ) )
             } }>
                 call C func
             </button>
-            <canvas id="canvas"/>
+            <canvas/>
         </div>
     )
 }
