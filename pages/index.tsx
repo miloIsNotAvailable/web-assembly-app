@@ -26,7 +26,7 @@ declare global {
 
 const Home: FC = () => {
 
-    const blobRef = useRef<HTMLDivElement | null>( null )
+    const blobRef = useRef<HTMLCanvasElement | null>( null )
 
     const arrToPtr = ( array: any ) => {
         const ptr: any = (Module as any)._malloc( array.length * 8 )
@@ -38,6 +38,7 @@ const Home: FC = () => {
     useEffect( () => {
         if( !blobRef.current || window.innerWidth < 600 ) return
 
+        blobRef.current.getContext( "webgl" )
         // const width = blobRef.current.offsetWidth;
         // const height = blobRef.current.offsetHeight;
 
@@ -128,7 +129,7 @@ const Home: FC = () => {
             } }>
                 call C func
             </button>
-            <div ref={ blobRef }></div>
+            <canvas ref={ blobRef }></canvas>
         </div>
     )
 }
