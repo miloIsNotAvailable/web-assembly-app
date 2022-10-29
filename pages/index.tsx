@@ -36,6 +36,54 @@ const Home: FC = () => {
     }
         
     useEffect( () => {
+        const e = document.getElementById( "canvas" ) as HTMLCanvasElement
+        const gl = e.getContext( "webgl2" )
+
+        if (!gl) return
+        
+          // Compile the vertex shader
+          const vertexShaderSource = `#version 300 es
+          void main() {
+            gl_Position = vec4(0, 0, 0, 1);
+            gl_PointSize = 10.0;
+          }`
+          const vs: any = gl.createShader(gl.VERTEX_SHADER)
+          gl.shaderSource(vs, vertexShaderSource)
+          gl.compileShader(vs)
+        
+          // Compile the fragment shader
+          const fragmentShaderSource = `#version 300 es
+          precision highp float;
+          out vec4 color;
+          void main() {
+            color = vec4(1);
+          }`
+          const fs: any = gl.createShader(gl.FRAGMENT_SHADER)
+          gl.shaderSource(fs, fragmentShaderSource)
+          gl.compileShader(fs)
+          
+          // Link the program
+          const prog: any = gl.createProgram()
+          gl.attachShader(prog, vs)
+          gl.attachShader(prog, fs)
+          gl.linkProgram(prog)
+          if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+            console.error('prog info-log:', gl.getProgramInfoLog(prog))
+            console.error('vert info-log: ', gl.getShaderInfoLog(vs))
+            console.error('frag info-log: ', gl.getShaderInfoLog(fs))
+          }
+          
+          // Use the program
+          gl.useProgram(prog)
+          
+          // Draw the point
+          gl.clearColor(0, 0, 0, 1) // set clear color to black
+          gl.lineWidth( 2. )
+          gl.clear(gl.COLOR_BUFFER_BIT) // clear the screen
+          gl.drawArrays(gl.POINTS, 0, 3) // draw 1 point
+    }, [])
+
+    useEffect( () => {
         if( !blobRef.current || window.innerWidth < 600 ) return
 
         // const width = blobRef.current.offsetWidth;
@@ -128,7 +176,9 @@ const Home: FC = () => {
             } }>
                 call C func
             </button>
-            <div ref={ blobRef }></div>
+            <canvas id="canvas"></canvas>
+            <div id="cnv"></div>
+            {/* <div ref={ blobRef }></div> */}
         </div>
     )
 }

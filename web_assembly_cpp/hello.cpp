@@ -5,7 +5,6 @@
 #include <EGL/egl.h>
 #include<math.h>
 #include <vector>
-#include <emscripten/html5.h> // emscripten module
 
 using std::vector;
 using namespace std;
@@ -17,6 +16,8 @@ void print( const char* input ) {
 
 // gets converted to _[function name]
 extern "C" {
+
+    #include <emscripten/html5.h> // emscripten module
 
     void myFunction() {
         print("called function in cpp");
@@ -126,11 +127,31 @@ extern "C" {
         }
     return out_array;
     }
+
+    int load_webgl() 
+    {
+        EmscriptenWebGLContextAttributes contextAttrs;
+        // set default values
+        // emscripten_webgl_init_context_attributes(&contextAttrs);
+        // override some values
+        contextAttrs.depth = true;
+        contextAttrs.stencil = true;
+        contextAttrs.antialias = true;
+        // create context
+        int ctx = emscripten_webgl_create_context("#canvas", &contextAttrs);
+
+        int e = emscripten_webgl_make_context_current(ctx);
+        cout << e << endl;
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        return 1;
+    }
 }
 
 int main()
 {
     print( "Hello world!" );
+    // load_webgl();
 
     return 0;
 }

@@ -24,4 +24,5 @@ void main() {
     vec4 aPos = vec4( position, 1. );
     aPos.xy = aPos.xy * 2. - 1.;
     gl_Position = aPos;
+    gl_PointSize = 10.;
 }`
