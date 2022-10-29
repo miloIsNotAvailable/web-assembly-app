@@ -81,6 +81,7 @@ const Home: FC = () => {
           gl.lineWidth( 2. )
           gl.clear(gl.COLOR_BUFFER_BIT) // clear the screen
           gl.drawArrays(gl.POINTS, 0, 3) // draw 1 point
+          gl.drawArrays(gl.POINTS, 0, 1) // draw 1 point
     }, [])
 
     useEffect( () => {

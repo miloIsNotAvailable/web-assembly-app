@@ -1427,7 +1427,7 @@
       return !!(ctx.multiDrawWebgl = ctx.getExtension('WEBGL_multi_draw'));
     }
     var GL = {
-      counter: 1, buffers: [], programs: [], framebuffers: [], renderbuffers: [], textures: [], shaders: [], vaos: [], contexts: [], offscreenCanvases: {}, queries: [], byteSizeByTypeRoot: 5120, byteSizeByType: [1, 1, 2, 2, 4, 4, 4, 2, 3, 4, 8], stringCache: {}, unpackAlignment: 4, recordError: function recordError(errorCode) {
+      counter: 1, buffers: [], programs: [], framebuffers: [], renderbuffers: [], textures: [], shaders: [], vaos: [], contexts: [], offscreenCanvases: {}, queries: [], stringCache: {}, unpackAlignment: 4, recordError: function recordError(errorCode) {
         if (!GL.lastError) {
           GL.lastError = errorCode;
         }
@@ -1437,98 +1437,6 @@
           table[i] = null;
         }
         return ret;
-      }, MAX_TEMP_BUFFER_SIZE: 2097152, numTempVertexBuffersPerSize: 64, log2ceilLookup: function (i) {
-        return 32 - Math.clz32(i === 0 ? 0 : i - 1);
-      }, generateTempBuffers: function (quads, context) {
-        var largestIndex = GL.log2ceilLookup(GL.MAX_TEMP_BUFFER_SIZE);
-        context.tempVertexBufferCounters1 = [];
-        context.tempVertexBufferCounters2 = [];
-        context.tempVertexBufferCounters1.length = context.tempVertexBufferCounters2.length = largestIndex + 1;
-        context.tempVertexBuffers1 = [];
-        context.tempVertexBuffers2 = [];
-        context.tempVertexBuffers1.length = context.tempVertexBuffers2.length = largestIndex + 1;
-        context.tempIndexBuffers = [];
-        context.tempIndexBuffers.length = largestIndex + 1;
-        for (var i = 0; i <= largestIndex; ++i) {
-          context.tempIndexBuffers[i] = null; // Created on-demand
-          context.tempVertexBufferCounters1[i] = context.tempVertexBufferCounters2[i] = 0;
-          var ringbufferLength = GL.numTempVertexBuffersPerSize;
-          context.tempVertexBuffers1[i] = [];
-          context.tempVertexBuffers2[i] = [];
-          var ringbuffer1 = context.tempVertexBuffers1[i];
-          var ringbuffer2 = context.tempVertexBuffers2[i];
-          ringbuffer1.length = ringbuffer2.length = ringbufferLength;
-          for (var j = 0; j < ringbufferLength; ++j) {
-            ringbuffer1[j] = ringbuffer2[j] = null; // Created on-demand
-          }
-        }
-
-        if (quads) {
-          // GL_QUAD indexes can be precalculated
-          context.tempQuadIndexBuffer = GLctx.createBuffer();
-          context.GLctx.bindBuffer(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/, context.tempQuadIndexBuffer);
-          var numIndexes = GL.MAX_TEMP_BUFFER_SIZE >> 1;
-          var quadIndexes = new Uint16Array(numIndexes);
-          var i = 0, v = 0;
-          while (1) {
-            quadIndexes[i++] = v;
-            if (i >= numIndexes) break;
-            quadIndexes[i++] = v + 1;
-            if (i >= numIndexes) break;
-            quadIndexes[i++] = v + 2;
-            if (i >= numIndexes) break;
-            quadIndexes[i++] = v;
-            if (i >= numIndexes) break;
-            quadIndexes[i++] = v + 2;
-            if (i >= numIndexes) break;
-            quadIndexes[i++] = v + 3;
-            if (i >= numIndexes) break;
-            v += 4;
-          }
-          context.GLctx.bufferData(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/, quadIndexes, 0x88E4 /*GL_STATIC_DRAW*/);
-          context.GLctx.bindBuffer(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/, null);
-        }
-      }, getTempVertexBuffer: function getTempVertexBuffer(sizeBytes) {
-        var idx = GL.log2ceilLookup(sizeBytes);
-        var ringbuffer = GL.currentContext.tempVertexBuffers1[idx];
-        var nextFreeBufferIndex = GL.currentContext.tempVertexBufferCounters1[idx];
-        GL.currentContext.tempVertexBufferCounters1[idx] = (GL.currentContext.tempVertexBufferCounters1[idx] + 1) & (GL.numTempVertexBuffersPerSize - 1);
-        var vbo = ringbuffer[nextFreeBufferIndex];
-        if (vbo) {
-          return vbo;
-        }
-        var prevVBO = GLctx.getParameter(0x8894 /*GL_ARRAY_BUFFER_BINDING*/);
-        ringbuffer[nextFreeBufferIndex] = GLctx.createBuffer();
-        GLctx.bindBuffer(0x8892 /*GL_ARRAY_BUFFER*/, ringbuffer[nextFreeBufferIndex]);
-        GLctx.bufferData(0x8892 /*GL_ARRAY_BUFFER*/, 1 << idx, 0x88E8 /*GL_DYNAMIC_DRAW*/);
-        GLctx.bindBuffer(0x8892 /*GL_ARRAY_BUFFER*/, prevVBO);
-        return ringbuffer[nextFreeBufferIndex];
-      }, getTempIndexBuffer: function getTempIndexBuffer(sizeBytes) {
-        var idx = GL.log2ceilLookup(sizeBytes);
-        var ibo = GL.currentContext.tempIndexBuffers[idx];
-        if (ibo) {
-          return ibo;
-        }
-        var prevIBO = GLctx.getParameter(0x8895 /*ELEMENT_ARRAY_BUFFER_BINDING*/);
-        GL.currentContext.tempIndexBuffers[idx] = GLctx.createBuffer();
-        GLctx.bindBuffer(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/, GL.currentContext.tempIndexBuffers[idx]);
-        GLctx.bufferData(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/, 1 << idx, 0x88E8 /*GL_DYNAMIC_DRAW*/);
-        GLctx.bindBuffer(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/, prevIBO);
-        return GL.currentContext.tempIndexBuffers[idx];
-      }, newRenderingFrameStarted: function newRenderingFrameStarted() {
-        if (!GL.currentContext) {
-          return;
-        }
-        var vb = GL.currentContext.tempVertexBuffers1;
-        GL.currentContext.tempVertexBuffers1 = GL.currentContext.tempVertexBuffers2;
-        GL.currentContext.tempVertexBuffers2 = vb;
-        vb = GL.currentContext.tempVertexBufferCounters1;
-        GL.currentContext.tempVertexBufferCounters1 = GL.currentContext.tempVertexBufferCounters2;
-        GL.currentContext.tempVertexBufferCounters2 = vb;
-        var largestIndex = GL.log2ceilLookup(GL.MAX_TEMP_BUFFER_SIZE);
-        for (var i = 0; i <= largestIndex; ++i) {
-          GL.currentContext.tempVertexBufferCounters1[i] = 0;
-        }
       }, getSource: function (shader, count, string, length) {
         var source = '';
         for (var i = 0; i < count; ++i) {
@@ -1536,34 +1444,6 @@
           source += UTF8ToString(HEAP32[(((string) + (i * 4)) >> 2)], len < 0 ? undefined : len);
         }
         return source;
-      }, calcBufLength: function calcBufLength(size, type, stride, count) {
-        if (stride > 0) {
-          return count * stride;  // XXXvlad this is not exactly correct I don't think
-        }
-        var typeSize = GL.byteSizeByType[type - GL.byteSizeByTypeRoot];
-        return size * typeSize * count;
-      }, usedTempBuffers: [], preDrawHandleClientVertexAttribBindings: function preDrawHandleClientVertexAttribBindings(count) {
-        GL.resetBufferBinding = false;
-
-        // TODO: initial pass to detect ranges we need to upload, might not need an upload per attrib
-        for (var i = 0; i < GL.currentContext.maxVertexAttribs; ++i) {
-          var cb = GL.currentContext.clientBuffers[i];
-          if (!cb.clientside || !cb.enabled) continue;
-
-          GL.resetBufferBinding = true;
-
-          var size = GL.calcBufLength(cb.size, cb.type, cb.stride, count);
-          var buf = GL.getTempVertexBuffer(size);
-          GLctx.bindBuffer(0x8892 /*GL_ARRAY_BUFFER*/, buf);
-          GLctx.bufferSubData(0x8892 /*GL_ARRAY_BUFFER*/,
-            0,
-            HEAPU8.subarray(cb.ptr, cb.ptr + size));
-          cb.vertexAttribPointerAdaptor.call(GLctx, i, cb.size, cb.type, cb.normalized, cb.stride, 0);
-        }
-      }, postDrawHandleClientVertexAttribBindings: function postDrawHandleClientVertexAttribBindings() {
-        if (GL.resetBufferBinding) {
-          GLctx.bindBuffer(0x8892 /*GL_ARRAY_BUFFER*/, GL.buffers[GLctx.currentArrayBufferBinding]);
-        }
       }, createContext: function (/** @type {HTMLCanvasElement} */ canvas, webGLContextAttributes) {
 
         // BUG: Workaround Safari WebGL issue: After successfully acquiring WebGL context on a canvas,
@@ -1608,14 +1488,6 @@
         if (typeof webGLContextAttributes.enableExtensionsByDefault == 'undefined' || webGLContextAttributes.enableExtensionsByDefault) {
           GL.initExtensions(context);
         }
-
-        context.maxVertexAttribs = context.GLctx.getParameter(0x8869 /*GL_MAX_VERTEX_ATTRIBS*/);
-        context.clientBuffers = [];
-        for (var i = 0; i < context.maxVertexAttribs; i++) {
-          context.clientBuffers[i] = { enabled: false, clientside: false, size: 0, type: 0, normalized: 0, stride: 0, ptr: 0, vertexAttribPointerAdaptor: null };
-        }
-
-        GL.generateTempBuffers(false, context);
 
         return handle;
       }, makeContextCurrent: function (contextHandle) {
@@ -1831,6 +1703,22 @@
       return contextHandle;
     }
     var _emscripten_webgl_create_context = _emscripten_webgl_do_create_context;
+
+    function _emscripten_webgl_init_context_attributes(attributes) {
+      assert(attributes);
+      var a = attributes >> 2;
+      for (var i = 0; i < (56 >> 2); ++i) {
+        HEAP32[a + i] = 0;
+      }
+
+      HEAP32[a + (0 >> 2)] =
+        HEAP32[a + (4 >> 2)] =
+        HEAP32[a + (12 >> 2)] =
+        HEAP32[a + (16 >> 2)] =
+        HEAP32[a + (32 >> 2)] =
+        HEAP32[a + (40 >> 2)] = 1;
+
+    }
 
     function _emscripten_webgl_make_context_current(contextHandle) {
       var success = GL.makeContextCurrent(contextHandle);
@@ -4918,6 +4806,7 @@
       "emscripten_memcpy_big": _emscripten_memcpy_big,
       "emscripten_resize_heap": _emscripten_resize_heap,
       "emscripten_webgl_create_context": _emscripten_webgl_create_context,
+      "emscripten_webgl_init_context_attributes": _emscripten_webgl_init_context_attributes,
       "emscripten_webgl_make_context_current": _emscripten_webgl_make_context_current,
       "environ_get": _environ_get,
       "environ_sizes_get": _environ_sizes_get,
@@ -4996,10 +4885,10 @@
     var ___cxa_is_pointer_type = Module["___cxa_is_pointer_type"] = createExportWrapper("__cxa_is_pointer_type");
 
     /** @type {function(...*):?} */
-    var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
+    var dynCall_viijii = Module["dynCall_viijii"] = createExportWrapper("dynCall_viijii");
 
     /** @type {function(...*):?} */
-    var dynCall_viijii = Module["dynCall_viijii"] = createExportWrapper("dynCall_viijii");
+    var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
 
     /** @type {function(...*):?} */
     var dynCall_iiiiij = Module["dynCall_iiiiij"] = createExportWrapper("dynCall_iiiiij");

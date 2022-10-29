@@ -18,7 +18,8 @@ void print( const char* input ) {
 extern "C" {
 
     #include <emscripten/html5.h> // emscripten module
-
+    #include <GL/glut.h>
+    
     void myFunction() {
         print("called function in cpp");
     }
@@ -127,31 +128,23 @@ extern "C" {
         }
     return out_array;
     }
-
-    int load_webgl() 
-    {
-        EmscriptenWebGLContextAttributes contextAttrs;
-        // set default values
-        // emscripten_webgl_init_context_attributes(&contextAttrs);
-        // override some values
-        contextAttrs.depth = true;
-        contextAttrs.stencil = true;
-        contextAttrs.antialias = true;
-        // create context
-        int ctx = emscripten_webgl_create_context("#canvas", &contextAttrs);
-
-        int e = emscripten_webgl_make_context_current(ctx);
-        cout << e << endl;
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        return 1;
-    }
 }
 
 int main()
 {
     print( "Hello world!" );
-    // load_webgl();
+	// setting up EmscriptenWebGLContextAttributes
+	EmscriptenWebGLContextAttributes attr;
+	emscripten_webgl_init_context_attributes(&attr);
+	attr.alpha = 0;
 
-    return 0;
+	// target the canvas selector
+	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_create_context("#canvas", &attr);
+	emscripten_webgl_make_context_current(ctx);
+
+    // this goes after you have activated the webgl context
+	glClearColor(0.984, 0.4627, 0.502, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	return 0;
 }

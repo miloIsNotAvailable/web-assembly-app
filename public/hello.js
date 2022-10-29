@@ -1685,6 +1685,22 @@ var ASM_CONSTS = {
     }
   var _emscripten_webgl_create_context = _emscripten_webgl_do_create_context;
 
+  function _emscripten_webgl_init_context_attributes(attributes) {
+      assert(attributes);
+      var a = attributes >> 2;
+      for (var i = 0; i < (56>>2); ++i) {
+        HEAP32[a+i] = 0;
+      }
+  
+      HEAP32[a + (0>>2)] =
+      HEAP32[a + (4>>2)] = 
+      HEAP32[a + (12>>2)] = 
+      HEAP32[a + (16>>2)] = 
+      HEAP32[a + (32>>2)] = 
+      HEAP32[a + (40>>2)] = 1;
+  
+    }
+
   function _emscripten_webgl_make_context_current(contextHandle) {
       var success = GL.makeContextCurrent(contextHandle);
       return success ? 0 : -5;
@@ -4747,6 +4763,7 @@ var asmLibraryArg = {
   "emscripten_memcpy_big": _emscripten_memcpy_big,
   "emscripten_resize_heap": _emscripten_resize_heap,
   "emscripten_webgl_create_context": _emscripten_webgl_create_context,
+  "emscripten_webgl_init_context_attributes": _emscripten_webgl_init_context_attributes,
   "emscripten_webgl_make_context_current": _emscripten_webgl_make_context_current,
   "environ_get": _environ_get,
   "environ_sizes_get": _environ_sizes_get,
@@ -4776,9 +4793,6 @@ var _computeBezier = Module["_computeBezier"] = createExportWrapper("computeBezi
 
 /** @type {function(...*):?} */
 var _copy_array = Module["_copy_array"] = createExportWrapper("copy_array");
-
-/** @type {function(...*):?} */
-var _load_webgl = Module["_load_webgl"] = createExportWrapper("load_webgl");
 
 /** @type {function(...*):?} */
 var _main = Module["_main"] = createExportWrapper("main");
