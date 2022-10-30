@@ -156,13 +156,6 @@ const Home: FC = () => {
 
                 const ptr = arrToPtr( new Float64Array( [ 2.4, 5.6, 1.1, 2.12, 4.12 ] ) )
 
-                Module.ccall(
-                    "load_webgl",                // name of C function
-                    [ "" ],              // return type
-                    [ "", "" ],          // argument types
-                    [  ]                  // arguments
-                );   
-
                 const result = Module.ccall(
                     "computeBezier",                // name of C function
                     [ "array" ],              // return type

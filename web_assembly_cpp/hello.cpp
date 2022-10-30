@@ -2,9 +2,12 @@
 #include <emscripten/emscripten.h>
 #include<string>
 #include <GLES2/gl2.h>
+#include <GLES3/gl3.h>
 #include <EGL/egl.h>
 #include<math.h>
 #include <vector>
+
+#define GLM_FORCE_PURE
 
 using std::vector;
 using namespace std;
@@ -19,7 +22,7 @@ extern "C" {
 
     #include <emscripten/html5.h> // emscripten module
     #include <GL/glut.h>
-    
+
     void myFunction() {
         print("called function in cpp");
     }
@@ -142,7 +145,82 @@ int main()
 	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_create_context("#canvas", &attr);
 	emscripten_webgl_make_context_current(ctx);
 
-    // this goes after you have activated the webgl context
+    const char *fragmentShaderSource = "#ifdef GL_ES\n"
+    "precision mediump float;\n"
+    "#endif\n"
+    "\n"    
+    "uniform vec2 u_resolution;\n"
+    "uniform vec2 u_mouse;\n"
+    "uniform float u_time;\n"
+    "uniform vec3 color;\n"
+    "\n"
+    "void main(){\n"
+    "vec2 st = gl_FragCoord.xy/u_resolution.xy;\n"
+    "st.x *= u_resolution.x/u_resolution.y;\n"
+    "\n"    
+    "gl_FragColor = vec4(1.0);\n"
+    "}\0";
+    const char *vertexShaderSource = "#ifdef GL_ES\n"
+    "precision mediump float;\n"
+    "#endif\n"
+    "\n" 
+    "void main() {\n"
+    "    vec4 aPos = vec4( 1. );\n"
+    "    aPos.xy = aPos.xy * 2. - 1.;\n"
+    "    gl_Position = mat4(1.) * aPos;\n"
+    "}\n\0";
+
+    // vertex shader
+    int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+    // check for shader compile errors
+
+    // fragment shader
+    int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    // check for shader compile errors
+
+    // link shaders
+    int shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+    // check for linking errors
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+
+    vector<float> vertices = {
+        10., 10., 0.,
+        20., 20., 0.
+    };
+
+    vector<float> lineColor = { 0.984, 0.4627, 0.502 };
+
+    GLuint VAO, VBO; 
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0); 
+    glBindVertexArray(0); 
+
+    glUseProgram(shaderProgram);
+
+    glUniform3fv(glGetUniformLocation(shaderProgram, "color"), 1, &lineColor[0]);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_LINES, 0, 2);
+
 	glClearColor(0.984, 0.4627, 0.502, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
