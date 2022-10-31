@@ -7,16 +7,10 @@
   <link rel="stylesheet preload prefetch" href="./styles/index.css" as="style" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite + React + TS</title>
-</head>
-
-<body>
-  <div id="root"></div>
-  <canvas id="canvas" height="400px" width="800px"></canvas>
-  <script type="module" src="/src/main.tsx"></script>
   <script async type="text/javascript">
-    const canvas = document.getElementById( "canvas" )
-    canvas.width = document.body.clientWidth - 18
-    canvas.height = window.innerHeight - 18
+    // const canvas = document.getElementById( "canvas" )
+    // canvas.width = document.body.clientWidth - 18
+    // canvas.height = window.innerHeight - 18
 
 // The Module object: Our interface to the outside world. We import
 // and export values on it. There are various ways Module can be used:
@@ -6040,6 +6034,13 @@ if (Module['noInitialRun']) shouldRunNow = false;
 run();
 
   </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <canvas id="canvas" height="400px" width="800px"></canvas>
+  <script type="module" src="/src/main.tsx"></script>
+
 </body>
 
 </html>
