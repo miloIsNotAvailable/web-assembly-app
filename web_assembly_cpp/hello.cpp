@@ -219,8 +219,8 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), 0); // How should it read the data
 	glEnableVertexAttribArray(0); // Tell opengl were using vertex data (with the id of 0)
 
-	// The colours
-	glEnableVertexAttribArray(1); // Use the second lot of data (colours)
+	// The colors
+	glEnableVertexAttribArray(1); // Use the second lot of data (colors)
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GL_FLOAT), (char*)(sizeof(GL_FLOAT)*2)); // Select the second lot of vertex data
 
 	GLushort indicies[] = { 0, 1, 2, 0, 3, 4 };

@@ -42,13 +42,6 @@ const Home: FC = () => {
           
     }, [])
 
-    useEffect( () => {
-        window.onload = () => {
-
-        }
-
-    }, [ ] )
-
     return (
         <div>
             <button onClick={ () => {
@@ -72,7 +65,7 @@ const Home: FC = () => {
             } }>
                 call C func
             </button>
-            {/* <canvas id="canvas" ref={ blobRef }></canvas> */}
+            <canvas id="canvas" ref={ blobRef }></canvas>
             {/* <div id="cnv"></div> */}
             {/* <div ref={ blobRef }></div> */}
         </div>
