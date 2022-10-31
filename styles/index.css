@@ -34,6 +34,11 @@ body {
   max-height: 100vh;
 }
 
+#canvas {
+  /* position: absolute; */
+  /* width: 40vw; */
+}
+
 #root {
   margin: 0;
   padding: 0;

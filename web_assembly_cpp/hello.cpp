@@ -145,8 +145,12 @@ int main()
 	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_create_context("#canvas", &attr);
 	emscripten_webgl_make_context_current(ctx);
 
-    const char *fragmentShaderSource = "#ifdef GL_ES\n"
-    "precision mediump float;\n"
+	glClearColor(0.984, 0.4627, 0.502, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+    const char *fragmentShaderSource = "\n"
+    "#ifdef GL_ES\n"
+    "precision highp float;\n"
     "#endif\n"
     "\n"    
     "uniform vec2 u_resolution;\n"
@@ -158,16 +162,24 @@ int main()
     "vec2 st = gl_FragCoord.xy/u_resolution.xy;\n"
     "st.x *= u_resolution.x/u_resolution.y;\n"
     "\n"    
-    "gl_FragColor = vec4(1.0);\n"
+    "gl_FragColor = vec4(color, 1.0);\n"
     "}\0";
-    const char *vertexShaderSource = "#ifdef GL_ES\n"
-    "precision mediump float;\n"
+    
+    const char *vertexShaderSource = "\n"
+    "#ifdef GL_ES\n"
+    "precision highp float;\n"
     "#endif\n"
+    "attribute vec3 aPos;\n"    
     "\n" 
     "void main() {\n"
-    "    vec4 aPos = vec4( 1. );\n"
-    "    aPos.xy = aPos.xy * 2. - 1.;\n"
-    "    gl_Position = mat4(1.) * aPos;\n"
+    "    mat4 T = mat4(\n"
+    "    1., 0., 0., 0.,\n"
+    "    0., 1., 0., 0.,\n"
+    "    0., 0., 1., 0.,\n"
+    "    0., 0., 0., 1. );\n"
+    "    vec4 pos = vec4( aPos, 1. );\n"
+    "    gl_Position =  pos * T;\n"
+    "    gl_PointSize = 10.;\n"
     "}\n\0";
 
     // vertex shader
@@ -180,49 +192,53 @@ int main()
     int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
-    // check for shader compile errors
+
+    // glDeleteShader(vertexShader);
+    // glDeleteShader(fragmentShader);
 
     // link shaders
     int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
-    // check for linking errors
+    glUseProgram( shaderProgram );
+GLfloat verts[] = {
+		// Verticies			Colours	
+		 .5f,  0.0f, 0.0f,		1.0f, 0.0f, 0.0f,
+		 .5f,  .0f, 0.0f,		0.0f, 1.0f, 0.0f,
+		 -1.0f, 0.f, 0.5f,		0.0f, 0.0f, 1.0f,
+	};
 
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+	GLuint vertexBufferID;	// Creates a unsigned int to store the VBO address later
+	glGenBuffers(1, &vertexBufferID);	// Generate the new buffer (1 of) and copy its address to the uint we made earlier 
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID); // Bind an array buffer to the VBO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW); // Send the vert data to the buffer
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), 0); // How should it read the data
+	glEnableVertexAttribArray(0); // Tell opengl were using vertex data (with the id of 0)
 
+	// The colours
+	glEnableVertexAttribArray(1); // Use the second lot of data (colours)
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GL_FLOAT), (char*)(sizeof(GL_FLOAT)*2)); // Select the second lot of vertex data
 
-    vector<float> vertices = {
-        10., 10., 0.,
-        20., 20., 0.
-    };
+	GLushort indicies[] = { 0, 1, 2, 0, 3, 4 };
 
-    vector<float> lineColor = { 0.984, 0.4627, 0.502 };
+	GLuint indexBufferID;
+	glGenBuffers(1, &indexBufferID); // new buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID); // assign to element array
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW); // pass in the element array data
 
-    GLuint VAO, VBO; 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // glfwPollEvents();
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+    glClearColor(0.188, 0.188, 0.188, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0); 
-
-    glUseProgram(shaderProgram);
-
+    vector<float> lineColor = { 1., 1., 1. };
     glUniform3fv(glGetUniformLocation(shaderProgram, "color"), 1, &lineColor[0]);
 
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_LINES, 0, 2);
-
-	glClearColor(0.984, 0.4627, 0.502, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
+    // Draw the triangle here!
+    //glDrawArrays(GL_TRIANGLES, 0, 3); // Draw the verticies to the screen
+    glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
+    // glfwSwapBuffers(window);
 
 	return 0;
 }
