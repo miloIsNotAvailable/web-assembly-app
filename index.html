@@ -4,10 +4,16 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <!-- preload-css -->
   <link rel="stylesheet preload prefetch" href="./styles/index.css" as="style" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite + React + TS</title>
-  <script type="text/javascript">
+</head>
+
+<body>
+  <div id="root"></div>
+  <!-- <canvas id="canvas" height="400px" width="800px"></canvas> -->
+  <script async type="text/javascript">
     // const canvas = document.getElementById( "canvas" )
     // canvas.width = document.body.clientWidth - 18
     // canvas.height = window.innerHeight - 18
@@ -6031,16 +6037,19 @@ var shouldRunNow = true;
 
 if (Module['noInitialRun']) shouldRunNow = false;
 
-// run();
+run();
+
+  const body = document.body
+  const canvas = document.createElement( "canvas" )
+  
+  canvas.id="canvas"
+  canvas.width=800
+  canvas.height=400
+
+  body.appendChild( canvas )
 
   </script>
-</head>
-
-<body onload="run()">
-  <div id="root"></div>
-  <canvas id="canvas" height="400px" width="800px"></canvas>
   <script type="module" src="/src/main.tsx"></script>
-
 </body>
 
 </html>
