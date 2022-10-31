@@ -161,6 +161,9 @@ int main()
     "void main(){\n"
     "vec2 st = gl_FragCoord.xy/u_resolution.xy;\n"
     "st.x *= u_resolution.x/u_resolution.y;\n"
+    "vec2 coord = gl_PointCoord - vec2(0.5);  //from [0,1] to [-0.5,0.5]\n"
+    "if(length(coord) > .5 )                  //outside of circle radius?\n"
+    "    discard;\n"
     "\n"    
     "gl_FragColor = vec4(color, 1.0);\n"
     "}\0";
@@ -202,11 +205,11 @@ int main()
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
     glUseProgram( shaderProgram );
-GLfloat verts[] = {
-		// Verticies			Colours	
-		 .5f,  0.0f, 0.0f,		1.0f, 0.0f, 0.0f,
-		 .5f,  .0f, 0.0f,		0.0f, 1.0f, 0.0f,
-		 -1.0f, 0.f, 0.5f,		0.0f, 0.0f, 1.0f,
+    GLfloat verts[] = {
+		// Verticies				
+		 0.f,  0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+		 1.f,  1.f, 0.0f,		1.0f, 1.0f, 1.0f,
+		 1.0f, -1.f, 0.f,		1.0f, 1.0f, 1.0f,
 	};
 
 	GLuint vertexBufferID;	// Creates a unsigned int to store the VBO address later
@@ -238,6 +241,10 @@ GLfloat verts[] = {
     // Draw the triangle here!
     //glDrawArrays(GL_TRIANGLES, 0, 3); // Draw the verticies to the screen
     glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
+    glEnable(GL_POINT_SMOOTH);
+    lineColor = { 0., 0.521, 1. };
+    glUniform3fv(glGetUniformLocation(shaderProgram, "color"), 1, &lineColor[0]);
+    glDrawElements(GL_POINTS, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
     // glfwSwapBuffers(window);
 
 	return 0;

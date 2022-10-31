@@ -26,7 +26,7 @@ declare global {
 
 const Home: FC = () => {
 
-    const blobRef = useRef<HTMLDivElement | null>( null )
+    const blobRef = useRef<HTMLCanvasElement | null>( null )
 
     const arrToPtr = ( array: any ) => {
         const ptr: any = (Module as any)._malloc( array.length * 8 )
@@ -39,124 +39,15 @@ const Home: FC = () => {
         const e = document.getElementById( "canvas" ) as HTMLCanvasElement
         // const gl = e.getContext( "webgl2" )
         console.log( e.getContext( "experimental-webgl" ) )
-
-        // if (!gl) return
-        
-        //   // Compile the vertex shader
-        //   const vertexShaderSource = `
-        //   attribute vec4 position;
-        //   void main() {
-        //     gl_Position = vec4(0, 0, 0, 1);
-        //     gl_PointSize = 10.0;
-        //   }`
-        //   const vs: any = gl.createShader(gl.VERTEX_SHADER)
-        //   gl.shaderSource(vs, vertexShaderSource)
-        //   gl.compileShader(vs)
-        
-        //   // Compile the fragment shader
-        //   const fragmentShaderSource = `
-        //   precision highp float;
-        //   void main() {
-        //     gl_FragColor = vec4(1.0);
-        //   }`
-        //   const fs: any = gl.createShader(gl.FRAGMENT_SHADER)
-        //   gl.shaderSource(fs, fragmentShaderSource)
-        //   gl.compileShader(fs)
-          
-        //   // Link the program
-        //   const prog: any = gl.createProgram()
-        //   gl.attachShader(prog, vs)
-        //   gl.attachShader(prog, fs)
-        //   gl.linkProgram(prog)
-        //   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-        //     console.error('prog info-log:', gl.getProgramInfoLog(prog))
-        //     console.error('vert info-log: ', gl.getShaderInfoLog(vs))
-        //     console.error('frag info-log: ', gl.getShaderInfoLog(fs))
-        //   }
-          
-        //   var buf = gl.createBuffer();
-        //   gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-        //   var data = [1,1,1,1-1,-1,-1,-1]; // 3 (3 value) positions
-        //   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
-        //   // Use the program
-        //   gl.useProgram(prog)
-
-        //   let vPosition = 0
-
-        //   // Draw the point
-        //   gl.clearColor(0, 0, 0, 1) // set clear color to black
-        //   let positionBuffer = gl.createBuffer();
-        //   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        //   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1,1,1,1, -1,-1,-1,1]), gl.STATIC_DRAW);
-        //   gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
-        //   gl.enableVertexAttribArray(vPosition);
-        
-        //   gl.drawArrays(gl.LINES, 0, 1);
           
     }, [])
 
     useEffect( () => {
-        if( !blobRef.current || window.innerWidth < 600 ) return
+        window.onload = () => {
 
-        // const width = blobRef.current.offsetWidth;
-        // const height = blobRef.current.offsetHeight;
-
-        const width = window.innerWidth
-        const height = window.innerHeight/2
-
-        const scene = new Scene()
-        const camera = new PerspectiveCamera( 
-            75, 
-            width/height, 
-            .1, 
-            100 
-        )
-
-        const renderer = new WebGLRenderer()
-        renderer.setSize( width, height )
-        blobRef.current.appendChild( renderer.domElement )
-
-        const geometry = new PlaneGeometry( width, height );
-        // const material = new MeshBasicMaterial( { color: 'tomato' } );
-        const material = new ShaderMaterial( {
-            uniforms: {
-                u_time: { value: 0. },
-                u_resolution: { value: new Vector2( width, height ) },
-                u_mouse: { value: 1. },
-            },
-            fragmentShader: frag,
-            vertexShader: vert,
-        } )
-
-        const cube = new Mesh( geometry, material );
-        scene.add( cube );
-
-        camera.position.z = 1;
-
-        const render = () => {
-            renderer.render( scene, camera );
         }
 
-        let delta = 0;
-        let reqId: number | undefined = undefined;
-        
-        function animate() {
-            reqId = undefined
-            delta += .02;
-            material.uniforms.u_time.value = delta
-            
-            reqId = requestAnimationFrame( animate );
-            render()
-
-            if( window.location.pathname !== "/" && reqId ) {
-                cancelAnimationFrame( reqId! )
-                // reqId = undefined
-                delta = 0;
-            }
-        }
-        animate()
-
-    }, [ blobRef.current  ] )
+    }, [ ] )
 
     return (
         <div>
@@ -181,8 +72,8 @@ const Home: FC = () => {
             } }>
                 call C func
             </button>
-            <canvas id="canvas"></canvas>
-            <div id="cnv"></div>
+            {/* <canvas id="canvas" ref={ blobRef }></canvas> */}
+            {/* <div id="cnv"></div> */}
             {/* <div ref={ blobRef }></div> */}
         </div>
     )
