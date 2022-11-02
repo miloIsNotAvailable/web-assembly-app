@@ -133,9 +133,37 @@ extern "C" {
     }
 }
 
+static float i = 1.;
+static float *p = &i;
+
+EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userData)
+{
+
+    if( (float)e->deltaY > 0 ) {
+        (*p) = *p + 1.;
+    } 
+
+    if( (float)e->deltaY < 0 ) {
+        (*p) = *p - 1.;
+    } 
+
+    printf("delta:(%g,%g,%g)\n",
+        (float)e->deltaX, *p, (float)e->deltaY);
+
+    return *p;
+}
+
+EM_BOOL cb ( double time, void* userData ){
+    // printf( "ye" );
+    return 1;
+}
+
+void* userData;
+
 int main()
 {
     print( "Hello world!" );
+    // emscripten_request_animation_frame_loop( cb, userData );
 	// setting up EmscriptenWebGLContextAttributes
 	EmscriptenWebGLContextAttributes attr;
 	emscripten_webgl_init_context_attributes(&attr);
@@ -145,7 +173,9 @@ int main()
 	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_create_context("#canvas", &attr);
 	emscripten_webgl_make_context_current(ctx);
 
-	glClearColor(0.984, 0.4627, 0.502, 1.0);
+    EM_BOOL ret = emscripten_set_wheel_callback("#canvas", 0, 1, wheel_callback);
+	
+    glClearColor(0.984, 0.4627, 0.502, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
     const char *fragmentShaderSource = "\n"
@@ -173,6 +203,7 @@ int main()
     "precision highp float;\n"
     "#endif\n"
     "attribute vec3 aPos;\n"    
+    "uniform mat4 SM;\n"    
     "\n" 
     "void main() {\n"
     "    mat4 T = mat4(\n"
@@ -180,8 +211,13 @@ int main()
     "    0., 1., 0., 0.,\n"
     "    0., 0., 1., 0.,\n"
     "    0., 0., 0., 1. );\n"
+    "    mat4 S = mat4(\n"
+    "    1., 0., 0., 0.,\n"
+    "    0., 1., 0., 0.,\n"
+    "    0., 0., 1., 0.,\n"
+    "    0., 0., 0., 1. );\n"
     "    vec4 pos = vec4( aPos, 1. );\n"
-    "    gl_Position =  pos * T;\n"
+    "    gl_Position =  pos * T * SM;\n"
     "    gl_PointSize = 10.;\n"
     "}\n\0";
 
@@ -205,11 +241,14 @@ int main()
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
     glUseProgram( shaderProgram );
+
     GLfloat verts[] = {
 		// Verticies				
-		 0.f,  0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
-		 1.f,  1.f, 0.0f,		1.0f, 1.0f, 1.0f,
-		 1.0f, -1.f, 0.f,		1.0f, 1.0f, 1.0f,
+		 0.f,  0.2f, 0.0f,		1.0f, 1.0f, 1.0f,
+		 .5f,  .5f, 0.0f,		1.0f, 1.0f, 1.0f,
+		 -.7f,  -.5f, 0.0f,		1.0f, 1.0f, 1.0f,
+		 -.7f,  -.5f, 0.0f,		1.0f, 1.0f, 1.0f,
+		 -.8f,  -.8f, 0.0f,		1.0f, 1.0f, 1.0f,
 	};
 
 	GLuint vertexBufferID;	// Creates a unsigned int to store the VBO address later
@@ -240,12 +279,20 @@ int main()
 
     // Draw the triangle here!
     //glDrawArrays(GL_TRIANGLES, 0, 3); // Draw the verticies to the screen
+    GLfloat SM[] = {
+        2., 0., 0., 0.,
+        0., 2., 0., 0.,
+        0., 0., 1., 0.,
+        0., 0., 0., 1.,
+    };
+
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "SM"), 1, GL_FALSE, &SM[0]);
+
     glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
     glEnable(GL_POINT_SMOOTH);
     lineColor = { 0., 0.521, 1. };
     glUniform3fv(glGetUniformLocation(shaderProgram, "color"), 1, &lineColor[0]);
     glDrawElements(GL_POINTS, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
-    // glfwSwapBuffers(window);
 
 	return 0;
 }

@@ -1,17 +1,5 @@
-import { FC, useEffect, useRef } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { WasmFloat64Array } from "../constants/wasm_arrays/WasmFloat64Array";
-import { 
-    Scene, 
-    PerspectiveCamera, 
-    WebGLRenderer, 
-    BoxGeometry, 
-    MeshBasicMaterial, 
-    Mesh, 
-    PlaneGeometry, 
-    ShaderMaterial, 
-    Vector2 
-} from 'three'
-import { frag, vert } from "../constants/shaders";
 
 declare global {
     var Module: {
@@ -38,16 +26,15 @@ const Home: FC = () => {
     useEffect( () => {
         const e = document.getElementById( "canvas" ) as HTMLCanvasElement
         // const gl = e.getContext( "webgl2" )
-        console.log( e.getContext( "experimental-webgl" ) )
-          
-    }, [])
+        // console.log( e.getContext( "experimental-webgl" ) )
+    })
 
     return (
         <div>
             <button onClick={ () => {
 
-                const WasmArrX = new WasmFloat64Array( [ 2.4, 5.6, 1.1, 2.12, 4.12 ] )
-                const WasmArrY = new WasmFloat64Array( [ 1.5, 3.2, 5.6, 3.3, 3. ] )
+                const WasmArrX = new WasmFloat64Array( [ 0., .5, -.7, -.7, -.8 ] )
+                const WasmArrY = new WasmFloat64Array( [ .2, .5, -.5, -.5, -.8 ] )
 
                 const ptr = arrToPtr( new Float64Array( [ 2.4, 5.6, 1.1, 2.12, 4.12 ] ) )
 
@@ -65,9 +52,6 @@ const Home: FC = () => {
             } }>
                 call C func
             </button>
-            {/* <canvas id="canvas" ref={ blobRef }></canvas> */}
-            {/* <div id="cnv"></div> */}
-            {/* <div ref={ blobRef }></div> */}
         </div>
     )
 }
