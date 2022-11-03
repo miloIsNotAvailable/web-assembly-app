@@ -136,23 +136,25 @@ extern "C" {
 static float i = 1.;
 static float *p = &i;
 
+static float trans_y = 0.;
+static float *ty = &trans_y;
+
 EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userData)
 {
 
-    if( !e->mouse.ctrlKey ) return 0;
+    if( !e->mouse.ctrlKey ) {
 
-    if( (float)e->deltaY < 0 ) {
-        (*p) = *p + 1.;
-    } 
+        (*ty) = *ty + .001 * e->deltaY;    
+        return 1;
+    };
 
-    if( (float)e->deltaY > 0 ) {
-        (*p) = *p - 1.;
-    } 
+    (*p) = *p + .001 * e->deltaY * -1;
 
     printf("delta:(%g,%g,%g)\n",
         (float)e->deltaX, *p, (float)e->deltaY);
 
-    return *p;
+    // return 1 to preventDefault
+    return 1;
 }
 
 EM_BOOL cb ( double time, void* userData ){
@@ -183,6 +185,7 @@ EM_BOOL cb ( double time, void* userData ){
     "#endif\n"
     "attribute vec3 aPos;\n"    
     "uniform mat4 SM;\n"    
+    "uniform mat4 TM;\n"    
     "\n" 
     "void main() {\n"
     "    mat4 T = mat4(\n"
@@ -196,7 +199,7 @@ EM_BOOL cb ( double time, void* userData ){
     "    0., 0., 1., 0.,\n"
     "    0., 0., 0., 1. );\n"
     "    vec4 pos = vec4( aPos, 1. );\n"
-    "    gl_Position =  pos * T * SM;\n"
+    "    gl_Position =  pos * TM * SM;\n"
     "    gl_PointSize = 10.;\n"
     "}\n\0";
 
@@ -265,7 +268,15 @@ EM_BOOL cb ( double time, void* userData ){
         0., 0., 0., 1.,
     };
 
+    GLfloat TM[] = {
+        1., 0., 0., 0.,
+        0., 1., 0., *ty,
+        0., 0., 1., 0.,
+        0., 0., 0., 1.,
+    };
+
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "SM"), 1, GL_FALSE, &SM[0]);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "TM"), 1, GL_FALSE, &TM[0]);
 
     glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
     glEnable(GL_POINT_SMOOTH);
