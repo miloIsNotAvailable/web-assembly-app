@@ -139,11 +139,13 @@ static float *p = &i;
 EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userData)
 {
 
-    if( (float)e->deltaY > 0 ) {
+    if( !e->mouse.ctrlKey ) return 0;
+
+    if( (float)e->deltaY < 0 ) {
         (*p) = *p + 1.;
     } 
 
-    if( (float)e->deltaY < 0 ) {
+    if( (float)e->deltaY > 0 ) {
         (*p) = *p - 1.;
     } 
 
@@ -155,30 +157,7 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userD
 
 EM_BOOL cb ( double time, void* userData ){
     // printf( "ye" );
-    return 1;
-}
-
-void* userData;
-
-int main()
-{
-    print( "Hello world!" );
-    // emscripten_request_animation_frame_loop( cb, userData );
-	// setting up EmscriptenWebGLContextAttributes
-	EmscriptenWebGLContextAttributes attr;
-	emscripten_webgl_init_context_attributes(&attr);
-	attr.alpha = 0;
-
-	// target the canvas selector
-	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_create_context("#canvas", &attr);
-	emscripten_webgl_make_context_current(ctx);
-
-    EM_BOOL ret = emscripten_set_wheel_callback("#canvas", 0, 1, wheel_callback);
-	
-    glClearColor(0.984, 0.4627, 0.502, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-    const char *fragmentShaderSource = "\n"
+        const char *fragmentShaderSource = "\n"
     "#ifdef GL_ES\n"
     "precision highp float;\n"
     "#endif\n"
@@ -280,8 +259,8 @@ int main()
     // Draw the triangle here!
     //glDrawArrays(GL_TRIANGLES, 0, 3); // Draw the verticies to the screen
     GLfloat SM[] = {
-        2., 0., 0., 0.,
-        0., 2., 0., 0.,
+        *p, 0., 0., 0.,
+        0., *p, 0., 0.,
         0., 0., 1., 0.,
         0., 0., 0., 1.,
     };
@@ -293,6 +272,35 @@ int main()
     lineColor = { 0., 0.521, 1. };
     glUniform3fv(glGetUniformLocation(shaderProgram, "color"), 1, &lineColor[0]);
     glDrawElements(GL_POINTS, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
+
+    glDetachShader( shaderProgram, fragmentShader );
+    glDetachShader( shaderProgram, vertexShader );
+
+    return 1;
+}
+
+void* userData;
+
+int main()
+{
+    print( "Hello world!" );
+	// setting up EmscriptenWebGLContextAttributes
+	EmscriptenWebGLContextAttributes attr;
+	emscripten_webgl_init_context_attributes(&attr);
+	attr.alpha = 0;
+
+	// target the canvas selector
+	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_create_context("#canvas", &attr);
+	emscripten_webgl_make_context_current(ctx);
+
+    EM_BOOL ret = emscripten_set_wheel_callback("#canvas", 0, 1, wheel_callback);
+	
+    glClearColor(0.984, 0.4627, 0.502, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+    emscripten_request_animation_frame_loop( cb, userData );
+
+
 
 	return 0;
 }

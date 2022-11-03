@@ -1362,6 +1362,25 @@ var ASM_CONSTS = {
       HEAPU8.copyWithin(dest, src, src + num);
     }
 
+  var wasmTableMirror = [];
+  function getWasmTableEntry(funcPtr) {
+      var func = wasmTableMirror[funcPtr];
+      if (!func) {
+        if (funcPtr >= wasmTableMirror.length) wasmTableMirror.length = funcPtr + 1;
+        wasmTableMirror[funcPtr] = func = wasmTable.get(funcPtr);
+      }
+      assert(wasmTable.get(funcPtr) == func, "JavaScript-side Wasm function table mirror is out of date!");
+      return func;
+    }
+  function _emscripten_request_animation_frame_loop(cb, userData) {
+      function tick(timeStamp) {
+        if (getWasmTableEntry(cb)(timeStamp, userData)) {
+          requestAnimationFrame(tick);
+        }
+      }
+      return requestAnimationFrame(tick);
+    }
+
   function getHeapMax() {
       return HEAPU8.length;
     }
@@ -1528,17 +1547,6 @@ var ASM_CONSTS = {
       target = maybeCStringToJsString(target);
       var domElement = specialHTMLTargets[target] || (typeof document != 'undefined' ? document.querySelector(target) : undefined);
       return domElement;
-    }
-  
-  var wasmTableMirror = [];
-  function getWasmTableEntry(funcPtr) {
-      var func = wasmTableMirror[funcPtr];
-      if (!func) {
-        if (funcPtr >= wasmTableMirror.length) wasmTableMirror.length = funcPtr + 1;
-        wasmTableMirror[funcPtr] = func = wasmTable.get(funcPtr);
-      }
-      assert(wasmTable.get(funcPtr) == func, "JavaScript-side Wasm function table mirror is out of date!");
-      return func;
     }
   function registerWheelEventCallback(target, userData, useCapture, callbackfunc, eventTypeId, eventTypeString, targetThread) {
       if (!JSEvents.wheelEvent) JSEvents.wheelEvent = _malloc( 104 );
@@ -4612,6 +4620,10 @@ var ASM_CONSTS = {
       return id;
     }
 
+  function _glDetachShader(program, shader) {
+      GLctx.detachShader(GL.programs[program], GL.shaders[shader]);
+    }
+
   function _glDrawElements(mode, count, type, indices) {
       var buf;
       if (!GLctx.currentElementArrayBufferBinding) {
@@ -5454,6 +5466,7 @@ var asmLibraryArg = {
   "__cxa_throw": ___cxa_throw,
   "abort": _abort,
   "emscripten_memcpy_big": _emscripten_memcpy_big,
+  "emscripten_request_animation_frame_loop": _emscripten_request_animation_frame_loop,
   "emscripten_resize_heap": _emscripten_resize_heap,
   "emscripten_set_wheel_callback_on_thread": _emscripten_set_wheel_callback_on_thread,
   "emscripten_webgl_create_context": _emscripten_webgl_create_context,
@@ -5473,6 +5486,7 @@ var asmLibraryArg = {
   "glCompileShader": _glCompileShader,
   "glCreateProgram": _glCreateProgram,
   "glCreateShader": _glCreateShader,
+  "glDetachShader": _glDetachShader,
   "glDrawElements": _glDrawElements,
   "glEnable": _glEnable,
   "glEnableVertexAttribArray": _glEnableVertexAttribArray,

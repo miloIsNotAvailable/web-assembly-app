@@ -4631,6 +4631,10 @@ var ASM_CONSTS = {
       return id;
     }
 
+  function _glDetachShader(program, shader) {
+      GLctx.detachShader(GL.programs[program], GL.shaders[shader]);
+    }
+
   function _glDrawElements(mode, count, type, indices) {
       var buf;
       if (!GLctx.currentElementArrayBufferBinding) {
@@ -5493,6 +5497,7 @@ var asmLibraryArg = {
   "glCompileShader": _glCompileShader,
   "glCreateProgram": _glCreateProgram,
   "glCreateShader": _glCreateShader,
+  "glDetachShader": _glDetachShader,
   "glDrawElements": _glDrawElements,
   "glEnable": _glEnable,
   "glEnableVertexAttribArray": _glEnableVertexAttribArray,
