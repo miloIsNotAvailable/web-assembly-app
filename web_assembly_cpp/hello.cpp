@@ -7,7 +7,13 @@
 #include<math.h>
 #include <vector>
 
-#define GLM_FORCE_PURE
+// #ifndef __gles2_gl3_h_
+// #define __gles2_gl3_h_ 1
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+// #define GLM_FORCE_PURE
 
 using std::vector;
 using namespace std;
@@ -16,9 +22,6 @@ using namespace std;
 void print( const char* input ) {
     cout << input << "\n";
 }
-
-// gets converted to _[function name]
-extern "C" {
 
     #include <emscripten/html5.h> // emscripten module
     #include <GL/glut.h>
@@ -131,6 +134,37 @@ extern "C" {
         }
     return out_array;
     }
+
+    void reshape(int w, int h) {
+    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+    // glMatrixMode(GL_PROJECTION);
+    // glLoadIdentity();
+    double M[] = {
+        .2, 0., 0., 0., 
+        0, .2, 0., 1., 
+        0, 0., 2., 1., 
+        0, 0., 0., 1., 
+    };
+    if (w <= h) {
+        // glMultMatrixd( &M[0] );
+          glOrtho(-5.0, 5.0, -5.0*(GLfloat)h/(GLfloat)w, 
+                   5.0*(GLfloat)h/(GLfloat)w, -5.0, 5.0);
+    }else{
+          glOrtho(-5.0*(GLfloat)w/(GLfloat)h, 
+                   5.0*(GLfloat)w/(GLfloat)h, -5.0, 5.0, -5.0, 5.0);
+    }
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
+GLfloat ctrlpoints[4][3] = {
+        { -4.0, -4.0, 0.0}, { -2.0, 4.0, 0.0}, 
+        {2.0, -4.0, 0.0}, {4.0, 4.0, 0.0}
+};
+
+void e(){
+    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &ctrlpoints[0][0]);
+    glEnable(GL_MAP1_VERTEX_3);
 }
 
 static float i = 1.;
@@ -148,6 +182,8 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userD
         return 1;
     };
 
+    if( *p < 0. ) *p = 0.;
+
     (*p) = *p + .001 * e->deltaY * -1;
 
     printf("delta:(%g,%g,%g)\n",
@@ -159,7 +195,7 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userD
 
 EM_BOOL cb ( double time, void* userData ){
     // printf( "ye" );
-        const char *fragmentShaderSource = "\n"
+    const char *fragmentShaderSource = "\n"
     "#ifdef GL_ES\n"
     "precision highp float;\n"
     "#endif\n"
@@ -169,6 +205,12 @@ EM_BOOL cb ( double time, void* userData ){
     "uniform float u_time;\n"
     "uniform vec3 color;\n"
     "\n"
+    "float DistanceToLineSegment(vec3 p, vec3 a, vec3 b)\n"
+    "{\n"
+    "    vec3 pa = p - a, ba = b - a;\n"
+    "    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );\n"
+    "    return length( pa - ba*h );\n"
+    "}\n"
     "void main(){\n"
     "vec2 st = gl_FragCoord.xy/u_resolution.xy;\n"
     "st.x *= u_resolution.x/u_resolution.y;\n"
@@ -224,6 +266,15 @@ EM_BOOL cb ( double time, void* userData ){
     glLinkProgram(shaderProgram);
     glUseProgram( shaderProgram );
 
+    // GLfloat verts[] = {
+	// 	// Verticies				
+	// 	 0.f,  0.2f, 0.0f,		1.0f, 1.0f, 1.0f,
+	// 	 .5f,  .5f, 0.0f,		1.0f, 1.0f, 1.0f,
+	// 	 -.7f,  -.5f, 0.0f,		1.0f, 1.0f, 1.0f,
+	// 	 -.7f,  -.5f, 0.0f,		1.0f, 1.0f, 1.0f,
+	// 	 -.8f,  -.8f, 0.0f,		1.0f, 1.0f, 1.0f,
+	// };
+
     GLfloat verts[] = {
 		// Verticies				
 		 0.f,  0.2f, 0.0f,		1.0f, 1.0f, 1.0f,
@@ -231,6 +282,8 @@ EM_BOOL cb ( double time, void* userData ){
 		 -.7f,  -.5f, 0.0f,		1.0f, 1.0f, 1.0f,
 		 -.7f,  -.5f, 0.0f,		1.0f, 1.0f, 1.0f,
 		 -.8f,  -.8f, 0.0f,		1.0f, 1.0f, 1.0f,
+		 -.8f,  -.8f, 0.0f,		1.0f, 1.0f, 1.0f,
+		 -.9f,  -1.2f, 0.0f,		1.0f, 1.0f, 1.0f,
 	};
 
 	GLuint vertexBufferID;	// Creates a unsigned int to store the VBO address later
@@ -278,6 +331,7 @@ EM_BOOL cb ( double time, void* userData ){
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "SM"), 1, GL_FALSE, &SM[0]);
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "TM"), 1, GL_FALSE, &TM[0]);
 
+    glLineWidth( 3 );
     glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
     glEnable(GL_POINT_SMOOTH);
     lineColor = { 0., 0.521, 1. };
@@ -311,7 +365,14 @@ int main()
 
     emscripten_request_animation_frame_loop( cb, userData );
 
+    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &ctrlpoints[0][0]);
+    glEnable(GL_MAP1_VERTEX_3);
 
+    glutReshapeFunc(reshape);
 
 	return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif
