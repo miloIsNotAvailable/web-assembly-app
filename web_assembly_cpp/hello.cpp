@@ -23,148 +23,110 @@ void print( const char* input ) {
     cout << input << "\n";
 }
 
-    #include <emscripten/html5.h> // emscripten module
-    #include <GL/glut.h>
+#include <emscripten/html5.h> // emscripten module
+#include <GL/glut.h>
 
-    void myFunction() {
-        print("called function in cpp");
-    }
-
-    // calculates n take k
-    double binomial( int n, int k ) {
-
-        double product = 1.;
-
-        for( int i = 1; i <= k; i ++ ) {
-            product = product * ( n + 1 - i ) / i;
-        }
-
-        return product;
-    }
-
-    // calculates bezier from 
-    // this sexy equation: 
-    // https://miro.medium.com/max/640/1*c8Rg7_G5n-3Vwmzr4pMzXA.png
-    double bezier( double t, int n ) {
-        
-        double sum = 0;
-        
-        for( int i = 0; i < n; i ++ ) {
-            sum = sum + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i );
-        }
-
-        return sum;
-    }
-
-    double* computeBezier( double vx[], double vy[] ) {
-
-        vector<double> curveX;
-        vector<double> curveY;
-
-        // convert array to vector
-        vector<double> vx_vec( vx, vx + sizeof vx + 1 );
-        vector<double> vy_vec( vy, vy + sizeof vy + 1 );
-
-        int n = vx_vec.size() - 1;
-        int v = 0;
-
-        for( double t = 0.; t < 1.; t += 0.01 ) {
-
-            double curveXpoint{ 0 };
-            double curveYpoint{ 0 };
-
-            for( int i = 0; i <= n; i++ ) {
-
-                curveXpoint = curveXpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vx_vec[i];
-                curveYpoint = curveYpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vy_vec[i];
-                
-            }
-            
-            curveX.push_back( curveXpoint );
-            curveY.push_back( curveYpoint );
-        }
-
-        for( auto i: curveX) {
-            cout << "i ->" << i << '\n';
-        }
-
-        for( auto i: curveY) {
-            cout << "j ->" << i << '\n';
-        }
-        
-        double* curveX_arr = &curveX[0];
-        double* curveY_arr = &curveY[0];
-
-        return curveX_arr;
-    }
-
-    void Print( vector<double>& v ) {
-        for( auto& i: v ) {
-            cout << i << endl;
-        }
-    }
-
-    // double* getTuple( double vx[], double vy[] ){
-            
-    //     std::vector<double> xX{0., 1., 2., 3.};
-    //     std::vector<double> yY{0., 1., 2., 3.};
-
-    //     // convert array to vector
-    //     vector<double> outx( vx, vx + sizeof vx + 1 );
-    //     vector<double> outy( vy, vy + sizeof vy + 1 );
-
-    //     for( int i = 0; i < outx.size(); i++ ) {
-    //         // out[i] = out[i] * 2.;
-    //         // cout << out[i] << endl;
-    //     }
-
-    //     computeBezier( outx, outy );
-    //     // convert vector to array
-    //     double* out_arr = &outx[0];
-        
-    //     return out_arr;
-    // }
-
-    double* copy_array(double in_array[], int length) {
-        double out_array[length];
-        for (int i=0; i<length; i++) {
-            in_array[i] = in_array[i] * 2;
-            out_array[i] = in_array[i];
-            cout << in_array[i] << "\n";
-        }
-    return out_array;
-    }
-
-    void reshape(int w, int h) {
-    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
-    // glMatrixMode(GL_PROJECTION);
-    // glLoadIdentity();
-    double M[] = {
-        .2, 0., 0., 0., 
-        0, .2, 0., 1., 
-        0, 0., 2., 1., 
-        0, 0., 0., 1., 
-    };
-    if (w <= h) {
-        // glMultMatrixd( &M[0] );
-          glOrtho(-5.0, 5.0, -5.0*(GLfloat)h/(GLfloat)w, 
-                   5.0*(GLfloat)h/(GLfloat)w, -5.0, 5.0);
-    }else{
-          glOrtho(-5.0*(GLfloat)w/(GLfloat)h, 
-                   5.0*(GLfloat)w/(GLfloat)h, -5.0, 5.0, -5.0, 5.0);
-    }
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+void myFunction() {
+    print("called function in cpp");
 }
 
-GLfloat ctrlpoints[4][3] = {
-        { -4.0, -4.0, 0.0}, { -2.0, 4.0, 0.0}, 
-        {2.0, -4.0, 0.0}, {4.0, 4.0, 0.0}
-};
+// calculates n take k
+double binomial( int n, int k ) {
 
-void e(){
-    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &ctrlpoints[0][0]);
-    glEnable(GL_MAP1_VERTEX_3);
+    double product = 1.;
+
+    for( int i = 1; i <= k; i ++ ) {
+        product = product * ( n + 1 - i ) / i;
+    }
+
+    return product;
+}
+
+// calculates bezier from 
+// this sexy equation: 
+// https://miro.medium.com/max/640/1*c8Rg7_G5n-3Vwmzr4pMzXA.png
+double bezier( double t, int n ) {
+    
+    double sum = 0;
+    
+    for( int i = 0; i < n; i ++ ) {
+        sum = sum + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i );
+    }
+
+    return sum;
+}
+
+float* computeBezier( float vx[], float vy[] ) {
+
+    vector<float> curveX;
+    vector<float> curveY;
+    
+    vector<float> curve;
+
+    // convert array to vector
+    vector<float> vx_vec( vx, vx + sizeof vx + 1 );
+    vector<float> vy_vec( vy, vy + sizeof vy + 1 );
+
+    int n = vx_vec.size() - 1;
+    int v = 0;
+
+    for( float t = 0.; t < 1.; t += 0.01 ) {
+
+        float curveXpoint{ 0 };
+        float curveYpoint{ 0 };
+
+        for( int i = 0; i <= n; i++ ) {
+
+            curveXpoint = curveXpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vx_vec[i];
+            curveYpoint = curveYpoint + binomial( n, i ) * pow( 1 - t, n - i ) * pow( t, i ) * vy_vec[i];
+            
+        }
+        // probably not the best way to do it but
+        // 
+        // push twice: as end point then as beginning point 
+        curve.push_back( curveXpoint );
+        curve.push_back( curveYpoint );
+
+        // leave index 0 as is
+        if( t * 100. > 0. ) {
+            curve.push_back( curveXpoint );
+            curve.push_back( curveYpoint );
+        }
+        
+        curveX.push_back( curveXpoint );
+        curveY.push_back( curveXpoint );
+    }
+
+    for( auto i: curveX) {
+        cout << "i ->" << i << '\n';
+    }
+
+    for( auto i: curveY) {
+        cout << "j ->" << i << '\n';
+    }
+    
+    float* curveX_arr = &curveX[0];
+    float* curveY_arr = &curveY[0];
+    
+    float* curve_arr = &curve[0];
+
+    return curve_arr;
+}
+
+void Print( vector<double>& v ) {
+    for( auto& i: v ) {
+        cout << i << endl;
+    }
+}
+
+double* copy_array(double in_array[], int length) {
+    double out_array[length];
+    for (int i=0; i<length; i++) {
+        in_array[i] = in_array[i] * 2;
+        out_array[i] = in_array[i];
+        cout << in_array[i] << "\n";
+    }
+return out_array;
 }
 
 static float i = 1.;
@@ -193,8 +155,15 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userD
     return 1;
 }
 
+float vx[] = { 0., .5, .3, .3, -.8 };
+float vy[] = { .2, .5, -.5, -.5, -.8 };
+
+// float arr[200];
+float* arr = computeBezier( vx, vy );
+
 EM_BOOL cb ( double time, void* userData ){
     // printf( "ye" );
+    // cout << sizeof(arr)/sizeof(float) << endl;
     const char *fragmentShaderSource = "\n"
     "#ifdef GL_ES\n"
     "precision highp float;\n"
@@ -221,22 +190,11 @@ EM_BOOL cb ( double time, void* userData ){
     "attribute vec3 aPos;\n"        
     "uniform mat4 SM;\n"    
     "uniform mat4 TM;\n"    
-    "\n"
-    "vec4 plane_curve(float u)\n"
-    "{\n"
-    "   vec4 p = (2.*u*u - 3.*u + 1.) * vec4( aPos, 1. );\n"
-    "   p += (-4.*u*u + 4.*u) * vec4( aPos, 1. );\n"
-    "   p += (2.*u*u - u) * vec4( aPos, 1. ); \n"
-    "\n"
-    "   return p;\n"
-    "}\n"
     "\n" 
     "void main() {\n"
     "   float u = aPos.x;\n"
     "   float v = aPos.y;\n"
-    "\n"
-    "   vec4 pos = plane_curve( 7. );\n"
-    "    gl_Position =  pos * TM * SM;\n"
+    "    gl_Position =  vec4(aPos, 1.) * TM * SM;\n"
     "    gl_PointSize = 10.;\n"
     "}\n\0";
 
@@ -261,231 +219,217 @@ EM_BOOL cb ( double time, void* userData ){
     glLinkProgram(shaderProgram);
     glUseProgram( shaderProgram );
 
-    // GLfloat verts[] = {
-	// 	// Verticies				
-	// 	 0.f,  0.2f, 0.0f,		1.0f, 1.0f, 1.0f,
-	// 	 .5f,  .5f, 0.0f,		1.0f, 1.0f, 1.0f,
-	// 	 -.7f,  -.5f, 0.0f,		1.0f, 1.0f, 1.0f,
-	// 	 -.7f,  -.5f, 0.0f,		1.0f, 1.0f, 1.0f,
-	// 	 -.8f,  -.8f, 0.0f,		1.0f, 1.0f, 1.0f,
-	// };
-
-    // GLfloat verts[] = {
-	// 	// Verticies				
-    //      -1.f,  1.f,
-	// 	 1.f,  .5f,
-
-    //      0.f, 0.f,
-    //      1.f, .5f,
-	// };
+    // cout << arr[199] << endl;
 
     GLfloat verts[] = {
-    0.0f, 0.05f,
-    0.0047479f, 0.05280725f,
-    0.0047479f, 0.05280725f,
-    0.009003025f, 0.05523825f,
-    0.009003025f, 0.05523825f,
-    0.01278245f, 0.05730625f,
-    0.01278245f, 0.05730625f,
-    0.0161029f, 0.059025f,
-    0.0161029f, 0.059025f,
-    0.018980925f, 0.06040675f,
-    0.018980925f, 0.06040675f,
-    0.0214328f, 0.06146525f,
-    0.0214328f, 0.06146525f,
-    0.0234745f, 0.06221225f,
-    0.0234745f, 0.06221225f,
-    0.02512175f, 0.06266075f,
-    0.02512175f, 0.06266075f,
-    0.02639025f, 0.06282275f,
-    0.02639025f, 0.06282275f,
-    0.027295f, 0.06271f,
-    0.027295f, 0.06271f,
-    0.02785125f, 0.0623345f,
-    0.02785125f, 0.0623345f,
-    0.0280735f, 0.06170775f,
-    0.0280735f, 0.06170775f,
-    0.0279765f, 0.060841f,
-    0.0279765f, 0.060841f,
-    0.02757425f, 0.0597455f,
-    0.02757425f, 0.0597455f,
-    0.026881f, 0.05843175f,
-    0.026881f, 0.05843175f,
-    0.02591025f, 0.056911f,
-    0.02591025f, 0.056911f,
-    0.024675725f, 0.05519325f,
-    0.024675725f, 0.05519325f,
-    0.02319055f, 0.05328875f,
-    0.02319055f, 0.05328875f,
-    0.021467725f, 0.05120775f,
-    0.021467725f, 0.05120775f,
-    0.01952f, 0.04896f,
-    0.01952f, 0.04896f,
-    0.01735985f, 0.046555f,
-    0.01735985f, 0.046555f,
-    0.0149995f, 0.044002f,
-    0.0149995f, 0.044002f,
-    0.012450975f, 0.0413105f,
-    0.012450975f, 0.0413105f,
-    0.00972595f, 0.03848925f,
-    0.00972595f, 0.03848925f,
-    0.006835925f, 0.035547f,
-    0.006835925f, 0.035547f,
-    0.00379215f, 0.032492f,
-    0.00379215f, 0.032492f,
-    0.00060557f, 0.029333f,
-    0.00060557f, 0.029333f,
-    -0.0027131f, 0.02607775f,
-    -0.0027131f, 0.02607775f,
-    -0.00615335f, 0.022734175f,
-    -0.00615335f, 0.022734175f,
-    -0.009705f, 0.01931f,
-    -0.009705f, 0.01931f,
-    -0.013358075f, 0.0158126f,
-    -0.013358075f, 0.0158126f,
-    -0.01710285f, 0.012249225f,
-    -0.01710285f, 0.012249225f,
-    -0.020929875f, 0.0086268f,
-    -0.020929875f, 0.0086268f,
-    -0.024829925f, 0.004952175f,
-    -0.024829925f, 0.004952175f,
-    -0.028794f, 0.001231875f,
-    -0.028794f, 0.001231875f,
-    -0.0328135f, -0.00252775f,
-    -0.0328135f, -0.00252775f,
-    -0.03688f, -0.00632055f,
-    -0.03688f, -0.00632055f,
-    -0.04098525f, -0.010140625f,
-    -0.04098525f, -0.010140625f,
-    -0.045121f, -0.013982275f,
-    -0.045121f, -0.013982275f,
-    -0.04928f, -0.01784f,
-    -0.04928f, -0.01784f,
-    -0.0534545f, -0.02170855f,
-    -0.0534545f, -0.02170855f,
-    -0.0576375f, -0.02558275f,
-    -0.0576375f, -0.02558275f,
-    -0.061822f, -0.029458f,
-    -0.061822f, -0.029458f,
-    -0.0660015f, -0.03332975f,
-    -0.0660015f, -0.03332975f,
-    -0.070169f, -0.03719325f,
-    -0.070169f, -0.03719325f,
-    -0.074319f, -0.04104425f,
-    -0.074319f, -0.04104425f,
-    -0.078445f, -0.04487925f,
-    -0.078445f, -0.04487925f,
-    -0.0825415f, -0.04869425f,
-    -0.0825415f, -0.04869425f,
-    -0.08660325f, -0.0524855f,
-    -0.08660325f, -0.0524855f,
-    -0.090625f, -0.05625f,
-    -0.090625f, -0.05625f,
-    -0.09460175f, -0.0599845f,
-    -0.09460175f, -0.0599845f,
-    -0.09852875f, -0.06368625f,
-    -0.09852875f, -0.06368625f,
-    -0.10240175f, -0.06735225f,
-    -0.10240175f, -0.06735225f,
-    -0.1062165f, -0.07098025f,
-    -0.1062165f, -0.07098025f,
-    -0.109969f, -0.07456825f,
-    -0.109969f, -0.07456825f,
-    -0.11365575f, -0.07811375f,
-    -0.11365575f, -0.07811375f,
-    -0.11727325f, -0.081615f,
-    -0.11727325f, -0.081615f,
-    -0.1208185f, -0.08507075f,
-    -0.1208185f, -0.08507075f,
-    -0.12428825f, -0.0884795f,
-    -0.12428825f, -0.0884795f,
-    -0.12768f, -0.09184f,
-    -0.12768f, -0.09184f,
-    -0.1309915f, -0.09515125f,
-    -0.1309915f, -0.09515125f,
-    -0.13422025f, -0.0984125f,
-    -0.13422025f, -0.0984125f,
-    -0.13736475f, -0.1016235f,
-    -0.13736475f, -0.1016235f,
-    -0.14042325f, -0.10478375f,
-    -0.14042325f, -0.10478375f,
-    -0.143394f, -0.10789325f,
-    -0.143394f, -0.10789325f,
-    -0.14627625f, -0.11095175f,
-    -0.14627625f, -0.11095175f,
-    -0.149069f, -0.11396025f,
-    -0.149069f, -0.11396025f,
-    -0.15177175f, -0.11691875f,
-    -0.15177175f, -0.11691875f,
-    -0.15438375f, -0.1198285f,
-    -0.15438375f, -0.1198285f,
-    -0.156905f, -0.12269f,
-    -0.156905f, -0.12269f,
-    -0.15933575f, -0.12550475f,
-    -0.15933575f, -0.12550475f,
-    -0.16167625f, -0.12827425f,
-    -0.16167625f, -0.12827425f,
-    -0.16392725f, -0.131f,
-    -0.16392725f, -0.131f,
-    -0.1660895f, -0.133684f,
-    -0.1660895f, -0.133684f,
-    -0.168164f, -0.13632825f,
-    -0.168164f, -0.13632825f,
-    -0.1701525f, -0.13893475f,
-    -0.1701525f, -0.13893475f,
-    -0.17205625f, -0.1415065f,
-    -0.17205625f, -0.1415065f,
-    -0.17387725f, -0.144046f,
-    -0.17387725f, -0.144046f,
-    -0.17561775f, -0.146556f,
-    -0.17561775f, -0.146556f,
-    -0.17728f, -0.14904f,
-    -0.17728f, -0.14904f,
-    -0.17886675f, -0.15150125f,
-    -0.17886675f, -0.15150125f,
-    -0.18038075f, -0.15394325f,
-    -0.18038075f, -0.15394325f,
-    -0.181825f, -0.15636975f,
-    -0.181825f, -0.15636975f,
-    -0.18320325f, -0.158785f,
-    -0.18320325f, -0.158785f,
-    -0.184519f, -0.16119325f,
-    -0.184519f, -0.16119325f,
-    -0.18577625f, -0.1635985f,
-    -0.18577625f, -0.1635985f,
-    -0.18697875f, -0.166006f,
-    -0.18697875f, -0.166006f,
-    -0.18813125f, -0.16842025f,
-    -0.18813125f, -0.16842025f,
-    -0.1892385f, -0.1708465f,
-    -0.1892385f, -0.1708465f,
-    -0.190305f, -0.17329f,
-    -0.190305f, -0.17329f,
-    -0.19133625f, -0.17575625f,
-    -0.19133625f, -0.17575625f,
-    -0.1923375f, -0.17825125f,
-    -0.1923375f, -0.17825125f,
-    -0.19331425f, -0.18078075f,
-    -0.19331425f, -0.18078075f,
-    -0.19427275f, -0.18335075f,
-    -0.19427275f, -0.18335075f,
-    -0.195219f, -0.18596825f,
-    -0.195219f, -0.18596825f,
-    -0.1961595f, -0.188639f,
-    -0.1961595f, -0.188639f,
-    -0.19710075f, -0.19137075f,
-    -0.19710075f, -0.19137075f,
-    -0.19804975f, -0.19416975f,
-    -0.19804975f, -0.19416975f,
-    -0.19901375f, -0.19704375f,
-    -0.19901375f, -0.19704375f,
+    0.f, 0.2f,
+0.0189916f, 0.211229f,
+0.0189916f, 0.211229f,
+0.0360121f, 0.220953f,
+0.0360121f, 0.220953f,
+0.0511298f, 0.229225f,
+0.0511298f, 0.229225f,
+0.0644116f, 0.2361f,
+0.0644116f, 0.2361f,
+0.0759237f, 0.241627f,
+0.0759237f, 0.241627f,
+0.0857312f, 0.245861f,
+0.0857312f, 0.245861f,
+0.093898f, 0.248849f,
+0.093898f, 0.248849f,
+0.100487f, 0.250643f,
+0.100487f, 0.250643f,
+0.105561f, 0.251291f,
+0.105561f, 0.251291f,
+0.10918f, 0.25084f,
+0.10918f, 0.25084f,
+0.111405f, 0.249338f,
+0.111405f, 0.249338f,
+0.112294f, 0.246831f,
+0.112294f, 0.246831f,
+0.111906f, 0.243364f,
+0.111906f, 0.243364f,
+0.110297f, 0.238982f,
+0.110297f, 0.238982f,
+0.107524f, 0.233727f,
+0.107524f, 0.233727f,
+0.103641f, 0.227644f,
+0.103641f, 0.227644f,
+0.0987029f, 0.220773f,
+0.0987029f, 0.220773f,
+0.0927622f, 0.213155f,
+0.0927622f, 0.213155f,
+0.0858709f, 0.204831f,
+0.0858709f, 0.204831f,
+0.07808f, 0.19584f,
+0.07808f, 0.19584f,
+0.0694394f, 0.18622f,
+0.0694394f, 0.18622f,
+0.059998f, 0.176008f,
+0.059998f, 0.176008f,
+0.0498039f, 0.165242f,
+0.0498039f, 0.165242f,
+0.0389038f, 0.153957f,
+0.0389038f, 0.153957f,
+0.0273437f, 0.142188f,
+0.0273437f, 0.142188f,
+0.0151686f, 0.129968f,
+0.0151686f, 0.129968f,
+0.00242228f, 0.117332f,
+0.00242228f, 0.117332f,
+-0.0108524f, 0.104311f,
+-0.0108524f, 0.104311f,
+-0.0246134f, 0.0909367f,
+-0.0246134f, 0.0909367f,
+-0.03882f, 0.07724f,
+-0.03882f, 0.07724f,
+-0.0534323f, 0.0632504f,
+-0.0534323f, 0.0632504f,
+-0.0684114f, 0.0489969f,
+-0.0684114f, 0.0489969f,
+-0.0837195f, 0.0345072f,
+-0.0837195f, 0.0345072f,
+-0.0993197f, 0.0198087f,
+-0.0993197f, 0.0198087f,
+-0.115176f, 0.0049275f,
+-0.115176f, 0.0049275f,
+-0.131254f, -0.010111f,
+-0.131254f, -0.010111f,
+-0.14752f, -0.0252822f,
+-0.14752f, -0.0252822f,
+-0.163941f, -0.0405625f,
+-0.163941f, -0.0405625f,
+-0.180484f, -0.0559291f,
+-0.180484f, -0.0559291f,
+-0.19712f, -0.07136f,
+-0.19712f, -0.07136f,
+-0.213818f, -0.0868342f,
+-0.213818f, -0.0868342f,
+-0.23055f, -0.102331f,
+-0.23055f, -0.102331f,
+-0.247288f, -0.117832f,
+-0.247288f, -0.117832f,
+-0.264006f, -0.133319f,
+-0.264006f, -0.133319f,
+-0.280676f, -0.148773f,
+-0.280676f, -0.148773f,
+-0.297276f, -0.164177f,
+-0.297276f, -0.164177f,
+-0.31378f, -0.179517f,
+-0.31378f, -0.179517f,
+-0.330166f, -0.194777f,
+-0.330166f, -0.194777f,
+-0.346413f, -0.209942f,
+-0.346413f, -0.209942f,
+-0.3625f, -0.225f,
+-0.3625f, -0.225f,
+-0.378407f, -0.239938f,
+-0.378407f, -0.239938f,
+-0.394115f, -0.254745f,
+-0.394115f, -0.254745f,
+-0.409607f, -0.269409f,
+-0.409607f, -0.269409f,
+-0.424866f, -0.283921f,
+-0.424866f, -0.283921f,
+-0.439876f, -0.298273f,
+-0.439876f, -0.298273f,
+-0.454623f, -0.312455f,
+-0.454623f, -0.312455f,
+-0.469093f, -0.32646f,
+-0.469093f, -0.32646f,
+-0.483274f, -0.340283f,
+-0.483274f, -0.340283f,
+-0.497153f, -0.353918f,
+-0.497153f, -0.353918f,
+-0.51072f, -0.36736f,
+-0.51072f, -0.36736f,
+-0.523966f, -0.380605f,
+-0.523966f, -0.380605f,
+-0.536881f, -0.39365f,
+-0.536881f, -0.39365f,
+-0.549459f, -0.406494f,
+-0.549459f, -0.406494f,
+-0.561693f, -0.419135f,
+-0.561693f, -0.419135f,
+-0.573576f, -0.431573f,
+-0.573576f, -0.431573f,
+-0.585105f, -0.443807f,
+-0.585105f, -0.443807f,
+-0.596276f, -0.455841f,
+-0.596276f, -0.455841f,
+-0.607087f, -0.467675f,
+-0.607087f, -0.467675f,
+-0.617535f, -0.479314f,
+-0.617535f, -0.479314f,
+-0.62762f, -0.49076f,
+-0.62762f, -0.49076f,
+-0.637343f, -0.502019f,
+-0.637343f, -0.502019f,
+-0.646705f, -0.513097f,
+-0.646705f, -0.513097f,
+-0.655709f, -0.524f,
+-0.655709f, -0.524f,
+-0.664358f, -0.534736f,
+-0.664358f, -0.534736f,
+-0.672656f, -0.545313f,
+-0.672656f, -0.545313f,
+-0.68061f, -0.555739f,
+-0.68061f, -0.555739f,
+-0.688225f, -0.566026f,
+-0.688225f, -0.566026f,
+-0.695509f, -0.576184f,
+-0.695509f, -0.576184f,
+-0.702471f, -0.586224f,
+-0.702471f, -0.586224f,
+-0.70912f, -0.59616f,
+-0.70912f, -0.59616f,
+-0.715467f, -0.606005f,
+-0.715467f, -0.606005f,
+-0.721523f, -0.615773f,
+-0.721523f, -0.615773f,
+-0.7273f, -0.625479f,
+-0.7273f, -0.625479f,
+-0.732813f, -0.63514f,
+-0.732813f, -0.63514f,
+-0.738076f, -0.644773f,
+-0.738076f, -0.644773f,
+-0.743105f, -0.654394f,
+-0.743105f, -0.654394f,
+-0.747915f, -0.664024f,
+-0.747915f, -0.664024f,
+-0.752525f, -0.673681f,
+-0.752525f, -0.673681f,
+-0.756954f, -0.683386f,
+-0.756954f, -0.683386f,
+-0.76122f, -0.69316f,
+-0.76122f, -0.69316f,
+-0.765345f, -0.703025f,
+-0.765345f, -0.703025f,
+-0.76935f, -0.713005f,
+-0.76935f, -0.713005f,
+-0.773257f, -0.723123f,
+-0.773257f, -0.723123f,
+-0.777091f, -0.733403f,
+-0.777091f, -0.733403f,
+-0.780876f, -0.743873f,
+-0.780876f, -0.743873f,
+-0.784638f, -0.754556f,
+-0.784638f, -0.754556f,
+-0.788403f, -0.765483f,
+-0.788403f, -0.765483f,
+-0.792199f, -0.776679f,
+-0.792199f, -0.776679f,
+-0.796055f, -0.788175f,
+-0.796055f, -0.788175f
 };
+
+    // cout << sizeof( arr ) << endl;
 
 	GLuint vertexBufferID;	// Creates a unsigned int to store the VBO address later
 	glGenBuffers(1, &vertexBufferID);	// Generate the new buffer (1 of) and copy its address to the uint we made earlier 
 	
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID); // Bind an array buffer to the VBO
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW); // Send the vert data to the buffer
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), arr, GL_STATIC_DRAW); // Send the vert data to the buffer
 	
     glEnableVertexAttribArray(0); // Tell opengl were using vertex data (with the id of 0)
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0); // How should it read the data
@@ -550,6 +494,7 @@ void* userData;
 int main()
 {
     print( "Hello world!" );
+
 	// setting up EmscriptenWebGLContextAttributes
 	EmscriptenWebGLContextAttributes attr;
 	emscripten_webgl_init_context_attributes(&attr);
@@ -566,10 +511,7 @@ int main()
 
     emscripten_request_animation_frame_loop( cb, userData );
 
-    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &ctrlpoints[0][0]);
-    glEnable(GL_MAP1_VERTEX_3);
-
-    glutReshapeFunc(reshape);
+    // glutReshapeFunc(reshape);
 
 	return 0;
 }
