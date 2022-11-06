@@ -5638,9 +5638,6 @@ var _binomial = Module["_binomial"] = createExportWrapper("binomial");
 var _bezier = Module["_bezier"] = createExportWrapper("bezier");
 
 /** @type {function(...*):?} */
-var _computeBezier = Module["_computeBezier"] = createExportWrapper("computeBezier");
-
-/** @type {function(...*):?} */
 var _copy_array = Module["_copy_array"] = createExportWrapper("copy_array");
 
 /** @type {function(...*):?} */
