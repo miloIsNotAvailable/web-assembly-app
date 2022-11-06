@@ -36,7 +36,11 @@ double binomial( int n, int k ) {
     double product = 1.;
 
     for( int i = 1; i <= k; i ++ ) {
-        product = product * ( n + 1 - i ) / i;
+        product = product * (( n + 1 - i ) / i);
+    }
+
+    if (n == k){
+        product = 1.;
     }
 
     return product;
@@ -64,8 +68,8 @@ float* computeBezier( float vx[], float vy[] ) {
     vector<float> curve;
 
     // convert array to vector
-    vector<float> vx_vec( vx, vx + sizeof vx + 1 );
-    vector<float> vy_vec( vy, vy + sizeof vy + 1 );
+    vector<float> vx_vec( vx, vx + sizeof vx - 1 );
+    vector<float> vy_vec( vy, vy + sizeof vy - 1 );
 
     int n = vx_vec.size() - 1;
     int v = 0;
@@ -83,7 +87,7 @@ float* computeBezier( float vx[], float vy[] ) {
         }
         // probably not the best way to do it but
         // 
-        // push twice: as end point then as beginning point 
+        // push twice: as end point then as starting point 
         curve.push_back( curveXpoint );
         curve.push_back( curveYpoint );
 
@@ -155,8 +159,8 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userD
     return 1;
 }
 
-float vx[] = { -1., -1., 1., 1. };
-float vy[] = { -.5, 1., 1., 1. };
+float vx[] = { -1., -.6, 1. };
+float vy[] = { -1., .5, 1. };
 
 EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userData)
 {
@@ -231,6 +235,16 @@ EM_BOOL cb ( double time, void* userData ){
     glUseProgram( shaderProgram );
 
     // cout << arr[199] << endl;
+
+    // this is just for testing & visualizing 
+    // remove later
+    GLfloat v[] = {
+        -1., -1.,
+        -0.6, 0.5,
+
+        -0.6, 0.5,
+        1., 1.
+    };
 
     GLfloat verts[] = {
     0.f, 0.2f,
