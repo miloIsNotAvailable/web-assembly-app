@@ -25,8 +25,6 @@ const Home: FC = () => {
         
     useEffect( () => {
         const e = document.getElementById( "canvas" ) as HTMLCanvasElement
-        // const gl = e.getContext( "webgl2" )
-        // console.log( e.getContext( "experimental-webgl" ) )
     })
 
     return (

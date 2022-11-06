@@ -62,7 +62,7 @@ double bezier( double t, int n ) {
 
 class Bezier {
     public: 
-        float* computeBezier( float vx[], float vy[], int size_x, int size_y ) {
+        vector<float> computeBezier( float vx[], float vy[], int size_x, int size_y ) {
 
             vector<float> curveX;
             vector<float> curveY;
@@ -118,7 +118,7 @@ class Bezier {
             
             float* curve_arr = &curve[0];
 
-            return curve_arr;
+            return curve;
         }
 };
 
@@ -252,19 +252,6 @@ class Vertex {
             Render shaders;
             shaders.initShader( shaders );
 
-            // cout << arr[199] << endl;
-
-            // this is just for testing & visualizing 
-            // remove later
-            GLfloat v[] = {
-                -1., -1.,
-                -0.5, 1.,
-
-                -0.5, 1.,
-                1., 1.
-            };
-
-                // cout << sizeof( verts ) << endl;
             GLuint vertexBufferID;	// Creates a unsigned int to store the VBO address later
             glGenBuffers(1, &vertexBufferID);	// Generate the new buffer (1 of) and copy its address to the uint we made earlier 
             
@@ -317,19 +304,29 @@ class Vertex {
 float vx[] = { -1., -.5, .5, 1. };
 float vy[] = { -1., 1., -.5, 1. };
 
+float ux[] = { -1., -.5, .5, 1. };
+float uy[] = { -1., 1., .5, 1. };
+
 Bezier b;
 
 // manually pass in lengths of arrays 
 // since length of dynamic array is 
 // just sizeof( type )
-static float* arr = b.computeBezier( 
+vector<float> arr = b.computeBezier( 
     vx, 
     vy, 
     sizeof( vx ) / sizeof( float ),
     sizeof( vy ) / sizeof( float )
 );
 
-static float arr2[] = { 
+vector<float> arr_2 = b.computeBezier( 
+    ux, 
+    uy, 
+    sizeof( ux ) / sizeof( float ),
+    sizeof( uy ) / sizeof( float )
+);
+
+float arr2[] = { 
     -1., -1.,
     -0.5, 1.,
     
@@ -340,8 +337,18 @@ static float arr2[] = {
     1., 1.
  };
 
+float arr3[] = { 
+    -1., -1.,
+    -0.5, 1.,
+    
+    -0.5, 1.,
+    .5, .5,
+
+    .5, .5,
+    1., 1.
+ };
+
 Vertex vertex;
-Vertex vertex2;
 EM_BOOL cb ( double time, void* userData ){
 
     glClearColor(0.188, 0.188, 0.188, 1.0f);
@@ -349,16 +356,20 @@ EM_BOOL cb ( double time, void* userData ){
 
     std::vector<float> col1 = { 1., 1., 1. };
     std::vector<float> col2 = { 0., 0.521, 1. };
+    std::vector<float> col3 = { 1., 0., 0.258 };
 
-    vertex.arr = arr;
+    // convert vector arr, to array
+    vertex.arr = &arr[0];
     vertex.draw( col1, 199 );
     
-    // cout << sizeof( const float* ) << endl;
-    glEnable(GL_LINE_STIPPLE);
-    // glLineStipple(1, 0xAAAA);
+    vertex.arr = &arr_2[0];
+    vertex.draw( col3, 199 );
 
-    vertex2.arr = arr2;
-    vertex2.draw( col2, 6 );
+    vertex.arr = arr2;
+    vertex.draw( col2, 6 );
+
+    // vertex.arr = arr3;
+    // vertex.draw( col3, 6 );
     return 1;
 }
 
