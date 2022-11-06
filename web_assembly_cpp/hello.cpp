@@ -155,8 +155,19 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userD
     return 1;
 }
 
-float vx[] = { 0., .5, .3, .3, -.8 };
-float vy[] = { .2, .5, -.5, -.5, -.8 };
+float vx[] = { -1., -1., 1., 1. };
+float vy[] = { -.5, 1., 1., 1. };
+
+EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userData)
+{
+  printf("%s, screen: (%ld,%ld), client: (%ld,%ld),%s%s%s%s button: %hu, buttons: %hu, movement: (%ld,%ld), canvas: (%ld,%ld), timestamp: %lf\n",
+    "", e->screenX, e->screenY, e->clientX, e->clientY,
+    e->ctrlKey ? " CTRL" : "", e->shiftKey ? " SHIFT" : "", e->altKey ? " ALT" : "", e->metaKey ? " META" : "", 
+    e->button, e->buttons, e->movementX, e->movementY, e->canvasX, e->canvasY,
+    e->timestamp);
+
+  return 0;
+}
 
 // float arr[200];
 float* arr = computeBezier( vx, vy );
@@ -505,7 +516,8 @@ int main()
 	emscripten_webgl_make_context_current(ctx);
 
     EM_BOOL ret = emscripten_set_wheel_callback("#canvas", 0, 1, wheel_callback);
-	
+    emscripten_set_mousedown_callback("#canvas", 0, 1, mouse_callback);	
+    
     glClearColor(0.984, 0.4627, 0.502, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 

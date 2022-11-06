@@ -1573,6 +1573,36 @@ var ASM_CONSTS = {
       return domElement;
     }
   Module["findEventTarget"] = findEventTarget;
+  function registerMouseEventCallback(target, userData, useCapture, callbackfunc, eventTypeId, eventTypeString, targetThread) {
+      if (!JSEvents.mouseEvent) JSEvents.mouseEvent = _malloc( 72 );
+      target = findEventTarget(target);
+  
+      var mouseEventHandlerFunc = function(ev) {
+        var e = ev || event;
+  
+        // TODO: Make this access thread safe, or this could update live while app is reading it.
+        fillMouseEventData(JSEvents.mouseEvent, e, target);
+  
+        if (getWasmTableEntry(callbackfunc)(eventTypeId, JSEvents.mouseEvent, userData)) e.preventDefault();
+      };
+  
+      var eventHandler = {
+        target: target,
+        allowsDeferredCalls: eventTypeString != 'mousemove' && eventTypeString != 'mouseenter' && eventTypeString != 'mouseleave', // Mouse move events do not allow fullscreen/pointer lock requests to be handled in them!
+        eventTypeString: eventTypeString,
+        callbackfunc: callbackfunc,
+        handlerFunc: mouseEventHandlerFunc,
+        useCapture: useCapture
+      };
+      JSEvents.registerOrRemoveHandler(eventHandler);
+    }
+  Module["registerMouseEventCallback"] = registerMouseEventCallback;
+  function _emscripten_set_mousedown_callback_on_thread(target, userData, useCapture, callbackfunc, targetThread) {
+      registerMouseEventCallback(target, userData, useCapture, callbackfunc, 5, "mousedown", targetThread);
+      return 0;
+    }
+  Module["_emscripten_set_mousedown_callback_on_thread"] = _emscripten_set_mousedown_callback_on_thread;
+
   function registerWheelEventCallback(target, userData, useCapture, callbackfunc, eventTypeId, eventTypeString, targetThread) {
       if (!JSEvents.wheelEvent) JSEvents.wheelEvent = _malloc( 104 );
   
@@ -5560,6 +5590,7 @@ var asmLibraryArg = {
   "emscripten_memcpy_big": _emscripten_memcpy_big,
   "emscripten_request_animation_frame_loop": _emscripten_request_animation_frame_loop,
   "emscripten_resize_heap": _emscripten_resize_heap,
+  "emscripten_set_mousedown_callback_on_thread": _emscripten_set_mousedown_callback_on_thread,
   "emscripten_set_wheel_callback_on_thread": _emscripten_set_wheel_callback_on_thread,
   "emscripten_webgl_create_context": _emscripten_webgl_create_context,
   "emscripten_webgl_init_context_attributes": _emscripten_webgl_init_context_attributes,
@@ -5989,7 +6020,6 @@ var missingLibrarySymbols = [
   'getSocketFromFD',
   'getSocketAddress',
   'registerKeyEventCallback',
-  'registerMouseEventCallback',
   'registerUiEventCallback',
   'registerFocusEventCallback',
   'fillDeviceOrientationEventData',
