@@ -247,7 +247,7 @@ class Vertex {
     public: 
         float* arr;
         // float* size = 199 * 8;
-        void draw( std::vector<float> color, int fetch ) {
+        void draw( std::vector<float> color, int fetch, int MODE=GL_LINES ) {
             
             Render shaders;
             shaders.initShader( shaders );
@@ -290,7 +290,7 @@ class Vertex {
 
             glLineWidth( 3 );
             // glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
-            glDrawArrays(GL_LINES, 0, fetch); // Draw the data using the element array
+            glDrawArrays(MODE, 0, fetch); // Draw the data using the element array
             
             glEnable(GL_POINT_SMOOTH);
             lineColor = { 0., 0.521, 1. };
@@ -298,6 +298,26 @@ class Vertex {
             // glDrawElements(GL_POINTS, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
             // glDrawArrays(GL_POINTS, 0, 199); // Draw the data using the element array
             shaders.clearShader( shaders );
+        }
+};
+
+class Draw {
+    public:
+        std::vector<float> color;
+        void vertex( float* arr, int size ) {
+            Vertex vertex;
+            
+            vertex.arr = arr;
+
+            vertex.draw( color, size );
+        }
+    
+        void rect( float* arr, int size ) {
+            Vertex vertex;
+            
+            vertex.arr = arr;
+
+            vertex.draw( color, size, GL_TRIANGLES );
         }
 };
 
@@ -338,38 +358,54 @@ float arr2[] = {
  };
 
 float arr3[] = { 
-    -1., -1.,
-    -0.5, 1.,
-    
-    -0.5, 1.,
-    .5, .5,
 
-    .5, .5,
-    1., 1.
+    0., 1.,
+    0.552, 1.,
+    
+    0.552, 1.,
+    1., .552,
+    
+    1., .552,
+    1., -.552,
+
+
  };
 
+float cx[] = { 0., 0.552, 1., 1. };
+float cy[] = { 1., 1., .552, -.552 };
+
+vector<float> arr_c = b.computeBezier( 
+    cx, 
+    cy, 
+    sizeof( cx ) / sizeof( float ),
+    sizeof( cy ) / sizeof( float )
+);
+
 Vertex vertex;
+Draw d;
+
+std::vector<float> col1 = { 1., 1., 1. };
+std::vector<float> col2 = { 0., 0.521, 1. };
+std::vector<float> col3 = { 1., 0., 0.258 };
+
 EM_BOOL cb ( double time, void* userData ){
 
     glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    std::vector<float> col1 = { 1., 1., 1. };
-    std::vector<float> col2 = { 0., 0.521, 1. };
-    std::vector<float> col3 = { 1., 0., 0.258 };
-
     // convert vector arr, to array
-    vertex.arr = &arr[0];
-    vertex.draw( col1, 199 );
+    d.color = col1;
+    d.vertex( &arr[0], 199 );
+
+    d.color = col2;
+    d.vertex( &arr2[0], 6 );
     
-    vertex.arr = &arr_2[0];
-    vertex.draw( col3, 199 );
+    d.color = col3;
+    d.vertex( &arr3[0], 6 );
 
-    vertex.arr = arr2;
-    vertex.draw( col2, 6 );
+    d.color = col1;  
+    d.vertex( &arr_c[0], 199 );
 
-    // vertex.arr = arr3;
-    // vertex.draw( col3, 6 );
     return 1;
 }
 
