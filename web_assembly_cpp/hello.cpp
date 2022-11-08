@@ -105,13 +105,13 @@ class Bezier {
                 curveY.push_back( curveXpoint );
             }
 
-            for( auto i: curveX) {
-                cout << "i ->" << i << '\n';
-            }
+            // for( auto i: curveX) {
+            //     cout << "i ->" << i << '\n';
+            // }
 
-            for( auto i: curveY) {
-                cout << "j ->" << i << '\n';
-            }
+            // for( auto i: curveY) {
+            //     cout << "j ->" << i << '\n';
+            // }
             
             float* curveX_arr = &curveX[0];
             float* curveY_arr = &curveY[0];
@@ -319,6 +319,68 @@ class Draw {
 
             vertex.draw( color, size, GL_TRIANGLES );
         }
+
+        tuple<float*> getCircleVals( float* arr, int size ){
+
+            float* trans_x_x;
+            float* trans_x_y;
+            // float* trans_y;
+            // float* trans_yx;
+
+            for( int i = 1; i < size; i ++ ) {
+                trans_x_x[i] = -1. * arr[(i - 1)/2];
+                // if( i % 2 == 0 ) {
+                    // cout << -1 * arr[i] << endl;
+                // } else { continue; }
+                
+                trans_x_y[i] = arr[2 * i - 1];
+                // if( i % 2 != 0 ) {
+                // } else { continue; }
+                
+                // trans_y[i] = i % 2 != 0 ? -1. * arr[i] : arr[i];
+            }
+
+            for( int i = 1; i < size/2; i++ ) {
+                cout << arr[(i - 1)/2] << ", " << arr[2 * i - 1] << endl;
+            }
+
+            Bezier b;
+
+            vector<float> arr_x = b.computeBezier( 
+                trans_x_x, 
+                trans_x_y, 
+                size/2,
+                size/2
+            );
+
+            return make_tuple( &arr_x[0] );   
+        }
+
+        void circle( float* arr, int size ) {
+            Vertex vertex;
+            
+            float trans_x[199];
+            float trans_y[199];
+            float trans_yx[199];
+
+            // for( int i = 0; i < size; i ++ ) {
+                // trans_x[i] = i % 2 != 0 ? -1. * arr[i] : arr[i];
+                // trans_y[i] = i % 2 == 0 ? -1. * arr[i] : arr[i];
+                // trans_yx[i] = -1. * arr[i];
+            // }
+
+            vertex.arr = arr;
+            vertex.draw( color, size );
+
+            // vertex.arr = trans_x;
+            // vertex.draw( color, size );
+
+            // vertex.arr = trans_y;
+            // vertex.draw( color, size );
+
+            // vertex.arr = trans_yx;
+            // vertex.draw( color, size );
+        }
 };
 
 float vx[] = { -1., -.5, .5, 1. };
@@ -357,22 +419,36 @@ float arr2[] = {
     1., 1.
  };
 
+//  * .5 'cause of 800x400 screen ratio
 float arr3[] = { 
 
     0., 1.,
-    0.552, 1.,
+    0.552/2., 1.,
     
-    0.552, 1.,
-    1., .552,
+    0.552/2., 1.,
+    .5, .552,
     
-    1., .552,
-    1., -.552,
-
-
+    .5, .552,
+    .5, 0.,
  };
 
-float cx[] = { 0., 0.552, 1., 1. };
-float cy[] = { 1., 1., .552, -.552 };
+float arr3_x[] = { 
+
+    0., 1.,
+    -0.552/2., 1.,
+    
+    -0.552/2., 1.,
+    -1./2., .552,
+    
+    -1./2., .552,
+    -1./2., 0.,
+ };
+
+float cx[] = { 0., 0.552/2., 1./2., 1./2. };
+float cy[] = { 1., 1., .552, 0. };
+
+float cx_x[] = { 0., -0.552/2., -1./2., -1./2. };
+float cy_x[] = { 1., 1., .552, 0. };
 
 vector<float> arr_c = b.computeBezier( 
     cx, 
@@ -381,8 +457,17 @@ vector<float> arr_c = b.computeBezier(
     sizeof( cy ) / sizeof( float )
 );
 
+vector<float> arr_c_x = b.computeBezier( 
+    cx_x, 
+    cy_x, 
+    sizeof( cx_x ) / sizeof( float ),
+    sizeof( cy_x ) / sizeof( float )
+);
+
 Vertex vertex;
 Draw d;
+
+auto _x = d.getCircleVals( arr3, 12 );
 
 std::vector<float> col1 = { 1., 1., 1. };
 std::vector<float> col2 = { 0., 0.521, 1. };
@@ -394,17 +479,25 @@ EM_BOOL cb ( double time, void* userData ){
     glClear(GL_COLOR_BUFFER_BIT);
 
     // convert vector arr, to array
-    d.color = col1;
-    d.vertex( &arr[0], 199 );
+    // d.color = col1;
+    // d.vertex( &arr[0], 199 );
 
-    d.color = col2;
-    d.vertex( &arr2[0], 6 );
+    // d.color = col2;
+    // d.vertex( &arr2[0], 6 );
     
     d.color = col3;
     d.vertex( &arr3[0], 6 );
 
+    d.color = col3;
+    d.vertex( &arr3_x[0], 6 );
+
     d.color = col1;  
     d.vertex( &arr_c[0], 199 );
+
+    d.color = col1;  
+    d.vertex( &arr_c_x[0], 199 );
+    
+    // d.circle( &arr_c[0], 199 );
 
     return 1;
 }
