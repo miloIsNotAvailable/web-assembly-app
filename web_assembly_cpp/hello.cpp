@@ -307,21 +307,22 @@ class Draw {
     void drawQuarter( float cx, float cy, float sx, float sy ) {
             
             float r_ = abs( sx ) - cy;
+            float scale = 0.;
 
             Bezier b;
             Vertex vertex;
 
             float arr[] = { 
 
-                sx * cx, sy * r_,
-                sx * 0.552F/2.f, sy * r_,
+                cx, sy * r_,
+                cx + scale + sx * 0.552F/2.f, sy * r_,
                 
-                sx * r_/2.f, sy * .552f,
-                sx * r_/2.f, sy * cy,
+                cx + scale + sx * r_/2.f, sy * .552f,
+                cx + sx * r_/2.f, sy * cy,
             };
             
-            float circle_x[] = { sx * cx, sx * 0.552F/2.f, sx * r_/2.f, sx * r_/2.f };
-            float circle_y[] = { sy * r_, sy * r_, sy * .552f, cy * sy };
+            float circle_x[] = { cx, cx + scale + sx * 0.552F/2.f, cx + sx * r_/2.f, cx + sx * r_/2.f };
+            float circle_y[] = { sy * r_, sy * r_, scale + sy * .552f, cy * sy };
 
             vector<float> arr_c = b.computeBezier( 
                 circle_x, 
@@ -356,95 +357,14 @@ class Draw {
             vertex.draw( color, size, GL_TRIANGLES );
         }
 
-        void circle( float r ) {
+        void circle( float cx, float cy, float sx, float sy ) {
 
-            drawQuarter( 0., 0., 1., 1. );
-            drawQuarter( 0., 0., -1., 1. );
-            drawQuarter( 0., 0., -1., -1. );
-            drawQuarter( 0., 0., 1., -1. );
+            drawQuarter( cx, cy, sx, sy );
+            drawQuarter( cx, cy, -1 * sx, sy );
+            drawQuarter( cx, cy, -1 * sx, -1 * sy );
+            drawQuarter( cx, cy, sx, -1 * sy );
         }
 };
-
-float vx[] = { -1., -.5, .5, 1. };
-float vy[] = { -1., 1., -.5, 1. };
-
-float ux[] = { -1., -.5, .5, 1. };
-float uy[] = { -1., 1., .5, 1. };
-
-Bezier b;
-
-// manually pass in lengths of arrays 
-// since length of dynamic array is 
-// just sizeof( type )
-vector<float> arr = b.computeBezier( 
-    vx, 
-    vy, 
-    sizeof( vx ) / sizeof( float ),
-    sizeof( vy ) / sizeof( float )
-);
-
-vector<float> arr_2 = b.computeBezier( 
-    ux, 
-    uy, 
-    sizeof( ux ) / sizeof( float ),
-    sizeof( uy ) / sizeof( float )
-);
-
-float arr2[] = { 
-    -1., -1.,
-    -0.5, 1.,
-    
-    -0.5, 1.,
-    .5, -.5,
-
-    .5, -.5,
-    1., 1.
- };
-
-//  * .5 'cause of 800x400 screen ratio
-float arr3[] = { 
-
-    0., 1.,
-    0.552/2., 1.,
-    
-    0.552/2., 1.,
-    .5, .552,
-    
-    .5, .552,
-    .5, 0.,
- };
-
-float arr3_x[] = { 
-
-    0., 1.,
-    -0.552/2., 1.,
-    
-    -0.552/2., 1.,
-    -1./2., .552,
-    
-    -1./2., .552,
-    -1./2., 0.,
- };
-
-float cx[] = { 0., 0.552/2., 1./2., 1./2. };
-float cy[] = { 1., 1., .552, 0. };
-
-float cx_x[] = { 0., -0.552/2., -1./2., -1./2. };
-float cy_x[] = { 1., 1., .552, 0. };
-
-vector<float> arr_c = b.computeBezier( 
-    cx, 
-    cy, 
-    sizeof( cx ) / sizeof( float ),
-    sizeof( cy ) / sizeof( float )
-);
-
-vector<float> arr_c_x = b.computeBezier( 
-    cx_x, 
-    cy_x, 
-    sizeof( cx_x ) / sizeof( float ),
-    sizeof( cy_x ) / sizeof( float )
-);
 
 Vertex vertex;
 Draw d;
@@ -459,7 +379,7 @@ EM_BOOL cb ( double time, void* userData ){
     glClear(GL_COLOR_BUFFER_BIT);
 
     d.color = col1;
-    d.circle( 1. );
+    d.circle( 0., 0., 1., 1. );
 
     return 1;
 }
