@@ -320,7 +320,7 @@ class Draw {
         std::vector<float> arr_c
     ) {
             
-            float r_ = abs( sx ) - cy;
+            float r_ = abs( sx );
             float scale = 0.;
 
             Bezier b;
@@ -328,22 +328,12 @@ class Draw {
 
             float arr[] = { 
 
-                cx, sy * r_,
-                cx + scale + sx * 0.552F/2.f, sy * r_,
+                cx, sy + cy,
+                cx + scale + sx * 0.552F/2.f, sy + cy,
                 
-                cx + scale + sx * r_/2.f, sy * .552f,
-                cx + sx * r_/2.f, sy * cy,
+                cx + scale + sx * r_/2.f, sy * .552f + cy,
+                cx + sx * r_/2.f, cy,
             };
-            
-            // float circle_x[] = { cx, cx + scale + sx * 0.552F/2.f, cx + sx * r_/2.f, cx + sx * r_/2.f };
-            // float circle_y[] = { sy * r_, sy * r_, scale + sy * .552f, cy * sy };
-
-            // vector<float> arr_c = b.computeBezier( 
-            //     circle_x, 
-            //     circle_y, 
-            //     sizeof( circle_x ) / sizeof( float ),
-            //     sizeof( circle_y ) / sizeof( float )
-            // );
 
             vector<float> col{ 0., 0.521, 1. };
 
@@ -380,7 +370,7 @@ class Draw {
 
             Bezier b;
 
-            float r_ = abs( sx ) - cy;
+            float r_ = abs( sx );
             float scale = 0.;
 
             float circle_x[] = { 
@@ -390,10 +380,10 @@ class Draw {
                 cx + sx * r_/2.f 
             };
             float circle_y[] = { 
-                sy * r_, 
-                sy * r_, 
-                scale + sy * .552f, 
-                cy * sy 
+                sy + cy, 
+                sy + cy, 
+                scale + sy * .552f + cy, 
+                cy
             };
         
             vector<float> arr_c = b.computeBezier( 
@@ -428,23 +418,29 @@ std::vector<float> col1 = { 1., 1., 1. };
 std::vector<float> col2 = { 0., 0.521, 1. };
 std::vector<float> col3 = { 1., 0., 0.258 };
 
-std::vector<float> c_vec_1 = d.calcQuarterBezier( 0.5, 0., 1., 1. );
-std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 0., -1., 1. );
-std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 0., -1., -1. );
-std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 0., 1., -1. );
+std::vector<float> c_vec_1 = d.calcQuarterBezier( 0.5, 1., 1., 1. );
+std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 1., -1., 1. );
+std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 1., -1., -1. );
+std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 1., 1., -1. );
 
 EM_BOOL cb ( double time, void* userData ){
-    // make it run at 30fps
-    // if( typeid( time/30 ).name() == "float" ) return 1;
+
+    static double t = 5.;
+    t --;
+    if( t < 0 ) {
+        t = 5.;
+
+        return 1;
+    }
 
     glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     d.color = col1;
-    d.circle( 0.5, 0., 1., 1., c_vec_1 );
-    d.circle( 0.5, 0., -1., 1., c_vec_2 );
-    d.circle( 0.5, 0., -1., -1., c_vec_3 );
-    d.circle( 0.5, 0., 1., -1., c_vec_4 );
+    d.circle( 0.5, 1., 1., 1., c_vec_1 );
+    d.circle( 0.5, 1., -1., 1., c_vec_2 );
+    d.circle( 0.5, 1., -1., -1., c_vec_3 );
+    d.circle( 0.5, 1., 1., -1., c_vec_4 );
 
     return 1;
 }
