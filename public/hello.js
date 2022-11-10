@@ -4724,10 +4724,30 @@ var ASM_CONSTS = {
     }
   Module["_glCreateShader"] = _glCreateShader;
 
-  function _glDetachShader(program, shader) {
-      GLctx.detachShader(GL.programs[program], GL.shaders[shader]);
+  function _glDeleteProgram(id) {
+      if (!id) return;
+      var program = GL.programs[id];
+      if (!program) { // glDeleteProgram actually signals an error when deleting a nonexisting object, unlike some other GL delete functions.
+        GL.recordError(0x501 /* GL_INVALID_VALUE */);
+        return;
+      }
+      GLctx.deleteProgram(program);
+      program.name = 0;
+      GL.programs[id] = null;
     }
-  Module["_glDetachShader"] = _glDetachShader;
+  Module["_glDeleteProgram"] = _glDeleteProgram;
+
+  function _glDeleteShader(id) {
+      if (!id) return;
+      var shader = GL.shaders[id];
+      if (!shader) { // glDeleteShader actually signals an error when deleting a nonexisting object, unlike some other GL delete functions.
+        GL.recordError(0x501 /* GL_INVALID_VALUE */);
+        return;
+      }
+      GLctx.deleteShader(shader);
+      GL.shaders[id] = null;
+    }
+  Module["_glDeleteShader"] = _glDeleteShader;
 
   function _glDrawArrays(mode, first, count) {
       // bind any client-side buffers
@@ -5609,7 +5629,8 @@ var asmLibraryArg = {
   "glCompileShader": _glCompileShader,
   "glCreateProgram": _glCreateProgram,
   "glCreateShader": _glCreateShader,
-  "glDetachShader": _glDetachShader,
+  "glDeleteProgram": _glDeleteProgram,
+  "glDeleteShader": _glDeleteShader,
   "glDrawArrays": _glDrawArrays,
   "glEnable": _glEnable,
   "glEnableVertexAttribArray": _glEnableVertexAttribArray,

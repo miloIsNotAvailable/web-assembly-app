@@ -228,20 +228,22 @@ class Render {
             glShaderSource(r.fragmentShader, 1, &r.fragmentShaderSource, NULL);
             glCompileShader(r.fragmentShader);
 
-            // glDeleteShader(vertexShader);
-            // glDeleteShader(fragmentShader);
-
             // link shaders
             glAttachShader(r.shaderProgram, r.vertexShader);
             glAttachShader(r.shaderProgram, r.fragmentShader);
+            
             glLinkProgram(r.shaderProgram);
+            clearShader( r );
             glUseProgram( r.shaderProgram );
+            
         }
 
         void clearShader( Render r ) {
             
-            glDetachShader( r.shaderProgram, r.fragmentShader );
-            glDetachShader( r.shaderProgram, r.vertexShader );
+            // glDetachShader( r.shaderProgram, r.fragmentShader );
+            // glDetachShader( r.shaderProgram, r.vertexShader );
+            glDeleteShader( r.vertexShader );
+            glDeleteShader( r.fragmentShader );
         }
 };
 
@@ -249,8 +251,7 @@ class Vertex {
     public: 
         float* arr;
         // float* size = 199 * 8;
-        void draw( std::vector<float> color, int fetch, int MODE=GL_LINES ) {
-            
+        void drawAttrib() {
             Render shaders;
             shaders.initShader( shaders );
 
@@ -259,16 +260,21 @@ class Vertex {
             
             glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID); // Bind an array buffer to the VBO
             
+            glEnableVertexAttribArray(0); // Tell opengl were using vertex data (with the id of 0)
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0); // How should it read the data
+            glEnableVertexAttribArray(0); // Tell opengl were using vertex data (with the id of 0)
+        }
+
+        void draw( std::vector<float> color, int fetch, int MODE=GL_LINES ) {
+            
+            Render shaders;
+            shaders.initShader( shaders );
             // sizeof is 199 * 8
             // since there are 199 elements in the arr itself
             // and each elements is a float
             // thus compiler assigns it 4 bytes + 3 for padding
             // sos in total sizeof is 199 * ( 1 + 3 + 4 )
-            glBufferData(GL_ARRAY_BUFFER, 199 * 2 * sizeof( float* ), arr, GL_STATIC_DRAW); // Send the vert data to the buffer
-                
-            glEnableVertexAttribArray(0); // Tell opengl were using vertex data (with the id of 0)
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0); // How should it read the data
-            glEnableVertexAttribArray(0); // Tell opengl were using vertex data (with the id of 0)
+            glBufferData(GL_ARRAY_BUFFER, 199 * 2 * sizeof( float* ), arr, GL_DYNAMIC_DRAW); // Send the vert data to the buffer
 
             vector<float> lineColor = { 1., 1., 1. };
             glUniform3fv(glGetUniformLocation(shaders.shaderProgram, "color"), 1, &color[0]);
@@ -300,11 +306,19 @@ class Vertex {
             // glDrawElements(GL_POINTS, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
             // glDrawArrays(GL_POINTS, 0, 199); // Draw the data using the element array
             shaders.clearShader( shaders );
+            glDeleteProgram( shaders.shaderProgram );
         }
 };
 
 class Draw {
-    void drawQuarter( float cx, float cy, float sx, float sy ) {
+
+    void drawQuarter( 
+        float cx, 
+        float cy, 
+        float sx, 
+        float sy,  
+        std::vector<float> arr_c
+    ) {
             
             float r_ = abs( sx ) - cy;
             float scale = 0.;
@@ -321,15 +335,15 @@ class Draw {
                 cx + sx * r_/2.f, sy * cy,
             };
             
-            float circle_x[] = { cx, cx + scale + sx * 0.552F/2.f, cx + sx * r_/2.f, cx + sx * r_/2.f };
-            float circle_y[] = { sy * r_, sy * r_, scale + sy * .552f, cy * sy };
+            // float circle_x[] = { cx, cx + scale + sx * 0.552F/2.f, cx + sx * r_/2.f, cx + sx * r_/2.f };
+            // float circle_y[] = { sy * r_, sy * r_, scale + sy * .552f, cy * sy };
 
-            vector<float> arr_c = b.computeBezier( 
-                circle_x, 
-                circle_y, 
-                sizeof( circle_x ) / sizeof( float ),
-                sizeof( circle_y ) / sizeof( float )
-            );
+            // vector<float> arr_c = b.computeBezier( 
+            //     circle_x, 
+            //     circle_y, 
+            //     sizeof( circle_x ) / sizeof( float ),
+            //     sizeof( circle_y ) / sizeof( float )
+            // );
 
             vector<float> col{ 0., 0.521, 1. };
 
@@ -357,12 +371,53 @@ class Draw {
             vertex.draw( color, size, GL_TRIANGLES );
         }
 
-        void circle( float cx, float cy, float sx, float sy ) {
+        std::vector<float> calcQuarterBezier( 
+            float cx, 
+            float cy, 
+            float sx, 
+            float sy
+        ){
 
-            drawQuarter( cx, cy, sx, sy );
-            drawQuarter( cx, cy, -1 * sx, sy );
-            drawQuarter( cx, cy, -1 * sx, -1 * sy );
-            drawQuarter( cx, cy, sx, -1 * sy );
+            Bezier b;
+
+            float r_ = abs( sx ) - cy;
+            float scale = 0.;
+
+            float circle_x[] = { 
+                cx, 
+                cx + scale + sx * 0.552F/2.f, 
+                cx + sx * r_/2.f, 
+                cx + sx * r_/2.f 
+            };
+            float circle_y[] = { 
+                sy * r_, 
+                sy * r_, 
+                scale + sy * .552f, 
+                cy * sy 
+            };
+        
+            vector<float> arr_c = b.computeBezier( 
+                circle_x, 
+                circle_y, 
+                sizeof( circle_x ) / sizeof( float ),
+                sizeof( circle_y ) / sizeof( float )
+            );
+
+            return arr_c;
+        }
+
+        void circle( 
+            float cx, 
+            float cy, 
+            float sx, 
+            float sy,
+            std::vector<float> arr_c
+         ) {
+
+            drawQuarter( cx, cy, sx, sy, arr_c );
+            // drawQuarter( cx, cy, -1 * sx, sy, arr_c );
+            // drawQuarter( cx, cy, -1 * sx, -1 * sy, arr_c );
+            // drawQuarter( cx, cy, sx, -1 * sy, arr_c );
         }
 };
 
@@ -373,13 +428,23 @@ std::vector<float> col1 = { 1., 1., 1. };
 std::vector<float> col2 = { 0., 0.521, 1. };
 std::vector<float> col3 = { 1., 0., 0.258 };
 
+std::vector<float> c_vec_1 = d.calcQuarterBezier( 0.5, 0., 1., 1. );
+std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 0., -1., 1. );
+std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 0., -1., -1. );
+std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 0., 1., -1. );
+
 EM_BOOL cb ( double time, void* userData ){
+    // make it run at 30fps
+    // if( typeid( time/30 ).name() == "float" ) return 1;
 
     glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     d.color = col1;
-    d.circle( 0., 0., 1., 1. );
+    d.circle( 0.5, 0., 1., 1., c_vec_1 );
+    d.circle( 0.5, 0., -1., 1., c_vec_2 );
+    d.circle( 0.5, 0., -1., -1., c_vec_3 );
+    d.circle( 0.5, 0., 1., -1., c_vec_4 );
 
     return 1;
 }
@@ -405,6 +470,7 @@ int main()
     glClearColor(0.984, 0.4627, 0.502, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+    vertex.drawAttrib();
     emscripten_request_animation_frame_loop( cb, userData );
 
     // glutReshapeFunc(reshape);
