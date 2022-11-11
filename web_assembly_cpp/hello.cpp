@@ -379,7 +379,7 @@ class Draw {
 
             float circle_x[] = { 
                 cx, 
-                cx + sx * .552F/(1.77f * r_), 
+                cx + sx * .552F/(1.77f), 
                 cx + sx * r_/(1.77f * r_), 
                 cx + sx * r_/(1.77f * r_) 
             };
@@ -422,20 +422,20 @@ std::vector<float> col1 = { 1., 1., 1. };
 std::vector<float> col2 = { 0., 0.521, 1. };
 std::vector<float> col3 = { 1., 0., 0.258 };
 
-std::vector<float> c_vec_1 = d.calcQuarterBezier( 0.5, 0., 1., 1. );
-std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 0., -1., 1. );
-std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 0., -1., -1. );
-std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 0., 1., -1. );
+std::vector<float> c_vec_1 = d.calcQuarterBezier( 0.5, 0., 1.3, 1.3 );
+std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 0., -1.3, 1.3 );
+std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 0., -1.3, -1.3 );
+std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 0., 1.3, -1.3 );
 
 void c() {
     glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     d.color = col1;
-    d.circle( 0.5, 0., 1., 1., c_vec_1 );
-    d.circle( 0.5, 0., -1., 1., c_vec_2 );
-    d.circle( 0.5, 0., -1., -1., c_vec_3 );
-    d.circle( 0.5, 0., 1., -1., c_vec_4 );
+    d.circle( 0.5, 0., 1.3, 1.3, c_vec_1 );
+    d.circle( 0.5, 0., -1.3, 1.3, c_vec_2 );
+    d.circle( 0.5, 0., -1.3, -1.3, c_vec_3 );
+    d.circle( 0.5, 0., 1.3, -1.3, c_vec_4 );
 
 }
 
