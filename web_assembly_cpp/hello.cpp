@@ -149,6 +149,8 @@ static float *ty = &trans_y;
 EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userData)
 {
 
+    glutPostRedisplay();
+
     if( !e->mouse.ctrlKey ) {
 
         (*ty) = *ty + .001 * e->deltaY;    
@@ -173,6 +175,8 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
     e->ctrlKey ? " CTRL" : "", e->shiftKey ? " SHIFT" : "", e->altKey ? " ALT" : "", e->metaKey ? " META" : "", 
     e->button, e->buttons, e->movementX, e->movementY, e->canvasX, e->canvasY,
     e->timestamp);
+
+    glutPostRedisplay();
 
   return 0;
 }
@@ -423,6 +427,18 @@ std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 0., -1., 1. );
 std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 0., -1., -1. );
 std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 0., 1., -1. );
 
+void c() {
+    glClearColor(0.188, 0.188, 0.188, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    d.color = col1;
+    d.circle( 0.5, 0., 1., 1., c_vec_1 );
+    d.circle( 0.5, 0., -1., 1., c_vec_2 );
+    d.circle( 0.5, 0., -1., -1., c_vec_3 );
+    d.circle( 0.5, 0., 1., -1., c_vec_4 );
+
+}
+
 EM_BOOL cb ( double time, void* userData ){
 
     static double t = 5.;
@@ -433,6 +449,7 @@ EM_BOOL cb ( double time, void* userData ){
         return 1;
     }
 
+    // glutPostRedisplay();    
     glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -467,8 +484,10 @@ int main()
 	glClear(GL_COLOR_BUFFER_BIT);
 
     vertex.drawAttrib();
-    emscripten_request_animation_frame_loop( cb, userData );
 
+    glutDisplayFunc( c );
+    glutPostRedisplay();
+    // emscripten_request_animation_frame_loop( cb, userData );
     // glutReshapeFunc(reshape);
 
 	return 0;

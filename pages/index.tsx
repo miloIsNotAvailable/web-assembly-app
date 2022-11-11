@@ -38,7 +38,7 @@ const Home: FC = () => {
 
     return (
         <div>
-            <button className="h" onClick={ () => {
+            <button onClick={ () => {
 
                 const WasmArrX = new WasmFloat64Array( [ 0., .5, -.7, -.7, -.8 ] )
                 const WasmArrY = new WasmFloat64Array( [ .2, .5, -.5, -.5, -.8 ] )
