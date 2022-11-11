@@ -321,7 +321,7 @@ class Draw {
     ) {
             
             float r_ = abs( sx );
-            float scale = 0.;
+            float scale = 0.5;
 
             Bezier b;
             Vertex vertex;
@@ -329,10 +329,10 @@ class Draw {
             float arr[] = { 
 
                 cx, sy + cy,
-                cx + scale + sx * 0.552F/2.f, sy + cy,
+                cx + sx * 0.552F/(1.77f * r_), sy + cy,
                 
-                cx + scale + sx * r_/2.f, sy * .552f + cy,
-                cx + sx * r_/2.f, cy,
+                cx + sx * r_/(1.77f * r_), sy * .552f + cy,
+                cx + sx * r_/(1.77f * r_), cy,
             };
 
             vector<float> col{ 0., 0.521, 1. };
@@ -375,14 +375,14 @@ class Draw {
 
             float circle_x[] = { 
                 cx, 
-                cx + scale + sx * 0.552F/2.f, 
-                cx + sx * r_/2.f, 
-                cx + sx * r_/2.f 
+                cx + sx * .552F/(1.77f * r_), 
+                cx + sx * r_/(1.77f * r_), 
+                cx + sx * r_/(1.77f * r_) 
             };
             float circle_y[] = { 
                 sy + cy, 
                 sy + cy, 
-                scale + sy * .552f + cy, 
+                sy * .552f + cy, 
                 cy
             };
         
@@ -418,10 +418,10 @@ std::vector<float> col1 = { 1., 1., 1. };
 std::vector<float> col2 = { 0., 0.521, 1. };
 std::vector<float> col3 = { 1., 0., 0.258 };
 
-std::vector<float> c_vec_1 = d.calcQuarterBezier( 0.5, 1., 1., 1. );
-std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 1., -1., 1. );
-std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 1., -1., -1. );
-std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 1., 1., -1. );
+std::vector<float> c_vec_1 = d.calcQuarterBezier( 0.5, 0., 1., 1. );
+std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 0., -1., 1. );
+std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 0., -1., -1. );
+std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 0., 1., -1. );
 
 EM_BOOL cb ( double time, void* userData ){
 
@@ -437,10 +437,10 @@ EM_BOOL cb ( double time, void* userData ){
     glClear(GL_COLOR_BUFFER_BIT);
 
     d.color = col1;
-    d.circle( 0.5, 1., 1., 1., c_vec_1 );
-    d.circle( 0.5, 1., -1., 1., c_vec_2 );
-    d.circle( 0.5, 1., -1., -1., c_vec_3 );
-    d.circle( 0.5, 1., 1., -1., c_vec_4 );
+    d.circle( 0.5, 0., 1., 1., c_vec_1 );
+    d.circle( 0.5, 0., -1., 1., c_vec_2 );
+    d.circle( 0.5, 0., -1., -1., c_vec_3 );
+    d.circle( 0.5, 0., 1., -1., c_vec_4 );
 
     return 1;
 }

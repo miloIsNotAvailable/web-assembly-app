@@ -25,11 +25,20 @@ const Home: FC = () => {
         
     useEffect( () => {
         const e = document.getElementById( "canvas" ) as HTMLCanvasElement
+        const gl = e.getContext( "webgl" )
+        
+        console.log( e.width, e.height )
+
+        window.onresize = () => {
+
+            e.width = window.innerWidth
+            e.height = window.innerHeight            
+        }
     })
 
     return (
         <div>
-            <button onClick={ () => {
+            <button className="h" onClick={ () => {
 
                 const WasmArrX = new WasmFloat64Array( [ 0., .5, -.7, -.7, -.8 ] )
                 const WasmArrY = new WasmFloat64Array( [ .2, .5, -.5, -.5, -.8 ] )
