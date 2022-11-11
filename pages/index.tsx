@@ -1,4 +1,5 @@
 import { FC, useEffect, useRef, useState } from "react";
+import Navbar from "../components/navbar/build/Navbar";
 import { WasmFloat64Array } from "../constants/wasm_arrays/WasmFloat64Array";
 
 declare global {
@@ -38,6 +39,7 @@ const Home: FC = () => {
 
     return (
         <div>
+            <Navbar/>
             <button onClick={ () => {
 
                 const WasmArrX = new WasmFloat64Array( [ 0., .5, -.7, -.7, -.8 ] )

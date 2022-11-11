@@ -1,0 +1,47 @@
+.navbar_wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0 auto;
+    padding: 0 1rem;
+    gap: 1rem;
+    width: calc( 100% - 4rem );
+    height: 3rem;
+    border-radius: 3rem;
+    border: var( --border );
+    background-color: var(--accent);
+}
+
+.pick_shapes {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    gap: .5rem;
+}
+
+.pick_shapes:focus .navbar_shapes, .pick_shapes:active ,.navbar_shapes {
+    visibility: visible;
+}
+
+.navbar_shapes {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background-color: var(--accent);
+    top: calc( 100% + 1rem );
+    padding: 1rem;
+    border-radius: .4rem;
+    border: var(--border);
+    visibility: collapse;
+}
+
+.shape {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+    font-size: var(--font-size);
+    color: white;
+    font-family: 'Poppins';
+}
