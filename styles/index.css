@@ -16,6 +16,11 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
+  margin: 0;
+  padding: 0;
+  max-width: 100vw;
+  max-height: 100vh;
+
   --red: #FC9999;
   --yellow: #FFEDCA;
   --blue: #99B5FC;
@@ -55,6 +60,6 @@ body {
 .icon {
   display: grid;
   place-self: center;
-  width: clamp( 1rem, 3vw, 2rem );
-  height: clamp( 1rem, 3vw, 2rem );
+  width: clamp( 1rem, 3vw, 1.5rem );
+  height: clamp( 1rem, 3vw, 1.5rem );
 }
