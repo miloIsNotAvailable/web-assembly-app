@@ -1594,6 +1594,12 @@ var ASM_CONSTS = {
     }
   Module["_emscripten_set_mousedown_callback_on_thread"] = _emscripten_set_mousedown_callback_on_thread;
 
+  function _emscripten_set_mouseup_callback_on_thread(target, userData, useCapture, callbackfunc, targetThread) {
+      registerMouseEventCallback(target, userData, useCapture, callbackfunc, 6, "mouseup", targetThread);
+      return 0;
+    }
+  Module["_emscripten_set_mouseup_callback_on_thread"] = _emscripten_set_mouseup_callback_on_thread;
+
   function registerWheelEventCallback(target, userData, useCapture, callbackfunc, eventTypeId, eventTypeString, targetThread) {
       if (!JSEvents.wheelEvent) JSEvents.wheelEvent = _malloc( 104 );
   
@@ -6693,6 +6699,7 @@ var asmLibraryArg = {
   "emscripten_memcpy_big": _emscripten_memcpy_big,
   "emscripten_resize_heap": _emscripten_resize_heap,
   "emscripten_set_mousedown_callback_on_thread": _emscripten_set_mousedown_callback_on_thread,
+  "emscripten_set_mouseup_callback_on_thread": _emscripten_set_mouseup_callback_on_thread,
   "emscripten_set_wheel_callback_on_thread": _emscripten_set_wheel_callback_on_thread,
   "emscripten_webgl_create_context": _emscripten_webgl_create_context,
   "emscripten_webgl_init_context_attributes": _emscripten_webgl_init_context_attributes,
@@ -6744,6 +6751,9 @@ var _bezier = Module["_bezier"] = createExportWrapper("bezier");
 
 /** @type {function(...*):?} */
 var _copy_array = Module["_copy_array"] = createExportWrapper("copy_array");
+
+/** @type {function(...*):?} */
+var _choose_shape = Module["_choose_shape"] = createExportWrapper("choose_shape");
 
 /** @type {function(...*):?} */
 var _main = Module["_main"] = createExportWrapper("main");

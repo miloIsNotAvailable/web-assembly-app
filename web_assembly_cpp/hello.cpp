@@ -168,19 +168,6 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userD
     return 1;
 }
 
-EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userData)
-{
-  printf("%s, screen: (%ld,%ld), client: (%ld,%ld),%s%s%s%s button: %hu, buttons: %hu, movement: (%ld,%ld), canvas: (%ld,%ld), timestamp: %lf\n",
-    "", e->screenX, e->screenY, e->clientX, e->clientY,
-    e->ctrlKey ? " CTRL" : "", e->shiftKey ? " SHIFT" : "", e->altKey ? " ALT" : "", e->metaKey ? " META" : "", 
-    e->button, e->buttons, e->movementX, e->movementY, e->canvasX, e->canvasY,
-    e->timestamp);
-
-    glutPostRedisplay();
-
-  return 0;
-}
-
 class Render {
     private: 
         const char *fragmentShaderSource = "\n"
@@ -427,6 +414,69 @@ std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 0., -.5, .5 );
 std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 0., -.5, -.5 );
 std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 0., .5, -.5 );
 
+int shape = 0;
+void choose_shape( int shape_ ) {
+
+    shape = shape_;
+}
+
+std::vector<float> col1_1 = { 1., 1., 1. };
+std::vector<float> col2_1 = { 0., 0.521, 1. };
+std::vector<float> col3_1 = { 1., 0., 0.258 };
+
+std::vector<float> c_vec_1_1 = d.calcQuarterBezier( 0., 0., .5, .5 );
+std::vector<float> c_vec_2_1 = d.calcQuarterBezier( 0., 0., -.5, .5 );
+std::vector<float> c_vec_3_1 = d.calcQuarterBezier( 0., 0., -.5, -.5 );
+std::vector<float> c_vec_4_1 = d.calcQuarterBezier( 0., 0., .5, -.5 );
+
+float pos = 0.;
+
+EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userData)
+{
+  printf("%s, screen: (%ld,%ld), client: (%ld,%ld),%s%s%s%s button: %hu, buttons: %hu, movement: (%ld,%ld), canvas: (%ld,%ld), timestamp: %lf\n",
+    "", e->screenX, e->screenY, e->clientX, e->clientY,
+    e->ctrlKey ? " CTRL" : "", e->shiftKey ? " SHIFT" : "", e->altKey ? " ALT" : "", e->metaKey ? " META" : "", 
+    e->button, e->buttons, e->movementX, e->movementY, e->canvasX, e->canvasY,
+    e->timestamp);
+
+    Draw d;
+
+    float mid = 1920. * .5;
+    pos = (e->screenX - mid)/mid;
+
+    cout << pos << endl;
+
+    cout << shape << endl;
+    glutPostRedisplay();
+
+  return 0;
+}
+
+static vector<float> rects; 
+static int ind = 0;
+
+EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *userData ) {
+
+    float arr[] = {
+        pos, .5,
+        pos, 0.,
+        0., 0.
+    };
+
+    if( shape == 1 ) {
+        ind += 3;
+        for( int i = 0; i < 6; i++ ) {
+            // cout << arr[i] << endl;
+            rects.push_back( arr[i] );
+        }
+    }
+
+    shape = 0;
+    glutPostRedisplay();
+
+    return 0;
+}
+
 void c() {
     glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -437,34 +487,38 @@ void c() {
     d.circle( 0.5, 0., -.5, -.5, c_vec_3 );
     d.circle( 0.5, 0., .5, -.5, c_vec_4 );
 
-}
+    // cout << shape << endl;
 
-EM_BOOL cb ( double time, void* userData ){
+    switch( shape ) {
 
-    static double t = 5.;
-    t --;
-    if( t < 0 ) {
-        t = 5.;
+        case 1:
+            // glClear(GL_COLOR_BUFFER_BIT);
 
-        return 1;
+            // glutPostRedisplay();
+            break;
+        
+        case 3:
+
+            // glClear(GL_COLOR_BUFFER_BIT);
+
+            d.color = col1_1;
+            d.circle( 0., 0., .5, .5, c_vec_1_1 );
+            d.circle( 0., 0., -.5, .5, c_vec_2_1 );
+            d.circle( 0., 0., -.5, -.5, c_vec_3_1 );
+            d.circle( 0., 0., .5, -.5, c_vec_4_1 );
+
+            // glutPostRedisplay();
+            break;
+    };
+
+    for( auto i: rects ) {
+        cout << i << endl;
     }
 
-    // glutPostRedisplay();    
-    glClearColor(0.188, 0.188, 0.188, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    d.color = col1_1;
+    d.rect( &rects[0], ind );
 
-    d.color = col1;
-    d.circle( 0.5, 0., 1., 1., c_vec_1 );
-    d.circle( 0.5, 0., -1., 1., c_vec_2 );
-    d.circle( 0.5, 0., -1., -1., c_vec_3 );
-    d.circle( 0.5, 0., 1., -1., c_vec_4 );
-
-    return 1;
 }
-
-// TODO: create cases for drawing shapes 1 square etc.
-// on mouse down check if any of those shapes is selected 
-// if so draw and redisplay with glut
 
 void* userData;
 
@@ -483,6 +537,7 @@ int main()
 
     EM_BOOL ret = emscripten_set_wheel_callback("#canvas", 0, 1, wheel_callback);
     emscripten_set_mousedown_callback("#canvas", 0, 1, mouse_callback);	
+    emscripten_set_mouseup_callback("#canvas", 0, 1, mouse_up_callback);	
     
     glClearColor(0.984, 0.4627, 0.502, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -491,6 +546,8 @@ int main()
 
     glutDisplayFunc( c );
     glutPostRedisplay();
+    // glutMouseFunc(mouse);
+    // glutMainLoop();
     // emscripten_request_animation_frame_loop( cb, userData );
     // glutReshapeFunc(reshape);
 
