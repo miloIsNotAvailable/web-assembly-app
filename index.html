@@ -1606,6 +1606,12 @@ var ASM_CONSTS = {
     }
   Module["_emscripten_set_mousedown_callback_on_thread"] = _emscripten_set_mousedown_callback_on_thread;
 
+  function _emscripten_set_mousemove_callback_on_thread(target, userData, useCapture, callbackfunc, targetThread) {
+      registerMouseEventCallback(target, userData, useCapture, callbackfunc, 8, "mousemove", targetThread);
+      return 0;
+    }
+  Module["_emscripten_set_mousemove_callback_on_thread"] = _emscripten_set_mousemove_callback_on_thread;
+
   function _emscripten_set_mouseup_callback_on_thread(target, userData, useCapture, callbackfunc, targetThread) {
       registerMouseEventCallback(target, userData, useCapture, callbackfunc, 6, "mouseup", targetThread);
       return 0;
@@ -4778,9 +4784,6 @@ var ASM_CONSTS = {
     }
   Module["_glEnableVertexAttribArray"] = _glEnableVertexAttribArray;
 
-  function _glFlush() { GLctx['flush']() }
-  Module["_glFlush"] = _glFlush;
-
   function __glGenObject(n, buffers, createFunction, objectTable
       ) {
       for (var i = 0; i < n; i++) {
@@ -6714,6 +6717,7 @@ var asmLibraryArg = {
   "emscripten_memcpy_big": _emscripten_memcpy_big,
   "emscripten_resize_heap": _emscripten_resize_heap,
   "emscripten_set_mousedown_callback_on_thread": _emscripten_set_mousedown_callback_on_thread,
+  "emscripten_set_mousemove_callback_on_thread": _emscripten_set_mousemove_callback_on_thread,
   "emscripten_set_mouseup_callback_on_thread": _emscripten_set_mouseup_callback_on_thread,
   "emscripten_set_wheel_callback_on_thread": _emscripten_set_wheel_callback_on_thread,
   "emscripten_webgl_create_context": _emscripten_webgl_create_context,
@@ -6738,7 +6742,6 @@ var asmLibraryArg = {
   "glDrawArrays": _glDrawArrays,
   "glEnable": _glEnable,
   "glEnableVertexAttribArray": _glEnableVertexAttribArray,
-  "glFlush": _glFlush,
   "glGenBuffers": _glGenBuffers,
   "glGetUniformLocation": _glGetUniformLocation,
   "glLineWidth": _glLineWidth,

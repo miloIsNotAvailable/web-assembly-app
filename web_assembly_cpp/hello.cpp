@@ -429,7 +429,18 @@ std::vector<float> c_vec_2_1 = d.calcQuarterBezier( 0., 0., -.5, .5 );
 std::vector<float> c_vec_3_1 = d.calcQuarterBezier( 0., 0., -.5, -.5 );
 std::vector<float> c_vec_4_1 = d.calcQuarterBezier( 0., 0., .5, -.5 );
 
-float pos = 0.;
+struct Position {
+    float x = 0.;
+    float y = 0.;
+    float dx = 1.; 
+    float dy = 1.; 
+};
+
+Position position;
+
+float mid = 1920. * .5;
+float mid_y = 1080. * .5;
+bool mousedown = false;
 
 EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userData)
 {
@@ -439,12 +450,16 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
     e->button, e->buttons, e->movementX, e->movementY, e->canvasX, e->canvasY,
     e->timestamp);
 
+    mousedown = true;
+
     Draw d;
 
-    float mid = 1920. * .5;
-    pos = (e->screenX - mid)/mid;
+    position.x = (e->screenX - mid)/mid;
+    
+    position.y = (mid_y - e->screenY)/mid_y;
 
-    cout << pos << endl;
+    cout << "x ->" << position.x << endl;
+    // cout << position.y << endl;
 
     cout << shape << endl;
     glutPostRedisplay();
@@ -452,20 +467,52 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
   return 0;
 }
 
+EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userData ) {
+
+    if( shape == 0 || !mousedown ) return 0;
+
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    float arr[] = {
+        position.x, position.y,
+        position.x, position.dy,
+        position.dx, position.y,
+        
+        position.dx, position.dy,
+        position.dx, position.y,
+        position.x, position.dy,
+    };
+
+    Draw d;
+
+    position.dx = (e->screenX - mid)/mid;
+    position.dy = position.y + (mid_y - e->screenY)/mid_y;
+
+    d.rect( arr, 6 );
+
+    return 0;
+}
+
 static vector<float> rects; 
 static int ind = 0;
 
 EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *userData ) {
 
+    mousedown = false;
+
     float arr[] = {
-        pos, .5,
-        pos, 0.,
-        0., 0.
+        position.x, position.y,
+        position.x, position.dy,
+        position.dx, position.y,
+        
+        position.dx, position.dy,
+        position.dx, position.y,
+        position.x, position.dy,
     };
 
     if( shape == 1 ) {
-        ind += 3;
-        for( int i = 0; i < 6; i++ ) {
+        ind += 6;
+        for( int i = 0; i < 12; i++ ) {
             // cout << arr[i] << endl;
             rects.push_back( arr[i] );
         }
@@ -477,15 +524,44 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
     return 0;
 }
 
+struct Ellipse {
+
+    float x0 = 0.;
+    float y0 = 0.;
+
+    float x_1 = 0.;
+    float y_1 = 0.;
+    
+    float x_2 = -x_1;
+    float y_2 = y_1;
+    
+    float x_3 = -x_1;
+    float y_3 = -y_1;
+    
+    float x_4 = x_1;
+    float y_4 = -y_1;
+
+    std::vector<float> c_vec_1 = d.calcQuarterBezier( x0, y0, x_1, y_1 );
+    std::vector<float> c_vec_2 = d.calcQuarterBezier( x0, y0, x_2, y_2 );
+    std::vector<float> c_vec_3 = d.calcQuarterBezier( x0, y0, x_3, y_3 );
+    std::vector<float> c_vec_4 = d.calcQuarterBezier( x0, y0, x_4, y_4 );
+    
+    void drawEllipse( vector<float> color ) {
+        d.color = col1;
+        d.circle( x0, y0, x_1, y_1, c_vec_1 );
+        d.circle( x0, y0, x_2, y_2, c_vec_2 );
+        d.circle( x0, y0, x_3, y_3, c_vec_3 );
+        d.circle( x0, y0, x_4, y_4, c_vec_4 );        
+    }
+};
+
+Ellipse e { 0., 0., .5, .5 };
+
 void c() {
     glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    d.color = col1;
-    d.circle( 0.5, 0., .5, .5, c_vec_1 );
-    d.circle( 0.5, 0., -.5, .5, c_vec_2 );
-    d.circle( 0.5, 0., -.5, -.5, c_vec_3 );
-    d.circle( 0.5, 0., .5, -.5, c_vec_4 );
+    e.drawEllipse( col1 );
 
     // cout << shape << endl;
 
@@ -501,11 +577,8 @@ void c() {
 
             // glClear(GL_COLOR_BUFFER_BIT);
 
-            d.color = col1_1;
-            d.circle( 0., 0., .5, .5, c_vec_1_1 );
-            d.circle( 0., 0., -.5, .5, c_vec_2_1 );
-            d.circle( 0., 0., -.5, -.5, c_vec_3_1 );
-            d.circle( 0., 0., .5, -.5, c_vec_4_1 );
+            Ellipse ellipse { .5, .5, 1., 1. };
+            ellipse.drawEllipse( col1 );
 
             // glutPostRedisplay();
             break;
@@ -536,9 +609,11 @@ int main()
 	emscripten_webgl_make_context_current(ctx);
 
     EM_BOOL ret = emscripten_set_wheel_callback("#canvas", 0, 1, wheel_callback);
+    
     emscripten_set_mousedown_callback("#canvas", 0, 1, mouse_callback);	
     emscripten_set_mouseup_callback("#canvas", 0, 1, mouse_up_callback);	
-    
+    emscripten_set_mousemove_callback("#canvas", 0, 1, mouse_move);
+
     glClearColor(0.984, 0.4627, 0.502, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 

@@ -1594,6 +1594,12 @@ var ASM_CONSTS = {
     }
   Module["_emscripten_set_mousedown_callback_on_thread"] = _emscripten_set_mousedown_callback_on_thread;
 
+  function _emscripten_set_mousemove_callback_on_thread(target, userData, useCapture, callbackfunc, targetThread) {
+      registerMouseEventCallback(target, userData, useCapture, callbackfunc, 8, "mousemove", targetThread);
+      return 0;
+    }
+  Module["_emscripten_set_mousemove_callback_on_thread"] = _emscripten_set_mousemove_callback_on_thread;
+
   function _emscripten_set_mouseup_callback_on_thread(target, userData, useCapture, callbackfunc, targetThread) {
       registerMouseEventCallback(target, userData, useCapture, callbackfunc, 6, "mouseup", targetThread);
       return 0;
@@ -6699,6 +6705,7 @@ var asmLibraryArg = {
   "emscripten_memcpy_big": _emscripten_memcpy_big,
   "emscripten_resize_heap": _emscripten_resize_heap,
   "emscripten_set_mousedown_callback_on_thread": _emscripten_set_mousedown_callback_on_thread,
+  "emscripten_set_mousemove_callback_on_thread": _emscripten_set_mousemove_callback_on_thread,
   "emscripten_set_mouseup_callback_on_thread": _emscripten_set_mouseup_callback_on_thread,
   "emscripten_set_wheel_callback_on_thread": _emscripten_set_wheel_callback_on_thread,
   "emscripten_webgl_create_context": _emscripten_webgl_create_context,
