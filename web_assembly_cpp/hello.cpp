@@ -442,6 +442,8 @@ float mid = 1920. * .5;
 float mid_y = 1080. * .5;
 bool mousedown = false;
 
+// Draw d;
+
 EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userData)
 {
   printf("%s, screen: (%ld,%ld), client: (%ld,%ld),%s%s%s%s button: %hu, buttons: %hu, movement: (%ld,%ld), canvas: (%ld,%ld), timestamp: %lf\n",
@@ -452,7 +454,6 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
 
     mousedown = true;
 
-    Draw d;
 
     position.x = (e->screenX - mid)/mid;
     
@@ -470,7 +471,8 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
 EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userData ) {
 
     if( shape == 0 || !mousedown ) return 0;
-
+    
+    glClearColor(0.188, 0.188, 0.188, .0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     float arr[] = {
@@ -483,11 +485,14 @@ EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userDat
         position.x, position.dy,
     };
 
-    Draw d;
+    // Draw d;
 
     position.dx = (e->screenX - mid)/mid;
     position.dy = position.y + (mid_y - e->screenY)/mid_y;
 
+    // glClear(GL_COLOR_BUF/FER_BIT);
+
+    d.color = col1;
     d.rect( arr, 6 );
 
     return 0;
