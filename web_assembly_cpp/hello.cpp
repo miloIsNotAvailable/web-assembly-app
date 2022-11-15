@@ -444,6 +444,37 @@ bool mousedown = false;
 
 // Draw d;
 
+struct Ellipse {
+
+    float x0 = 0.;
+    float y0 = 0.;
+
+    float x_1 = 0.;
+    float y_1 = 0.;
+    
+    float x_2 = -x_1;
+    float y_2 = y_1;
+    
+    float x_3 = -x_1;
+    float y_3 = -y_1;
+    
+    float x_4 = x_1;
+    float y_4 = -y_1;
+
+    std::vector<float> c_vec_1 = d.calcQuarterBezier( x0, y0, x_1, y_1 );
+    std::vector<float> c_vec_2 = d.calcQuarterBezier( x0, y0, x_2, y_2 );
+    std::vector<float> c_vec_3 = d.calcQuarterBezier( x0, y0, x_3, y_3 );
+    std::vector<float> c_vec_4 = d.calcQuarterBezier( x0, y0, x_4, y_4 );
+    
+    void drawEllipse( vector<float> color ) {
+        d.color = col1;
+        d.circle( x0, y0, x_1, y_1, c_vec_1 );
+        d.circle( x0, y0, x_2, y_2, c_vec_2 );
+        d.circle( x0, y0, x_3, y_3, c_vec_3 );
+        d.circle( x0, y0, x_4, y_4, c_vec_4 );        
+    }
+};
+
 EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userData)
 {
   printf("%s, screen: (%ld,%ld), client: (%ld,%ld),%s%s%s%s button: %hu, buttons: %hu, movement: (%ld,%ld), canvas: (%ld,%ld), timestamp: %lf\n",
@@ -495,11 +526,17 @@ EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userDat
     d.color = col1;
     d.rect( arr, 6 );
 
+    Ellipse el { position.x, position.y, position.dx, position.dy };
+    el.drawEllipse( col1 );
+
     return 0;
 }
 
 static vector<float> rects; 
+static vector<float> ellipses; 
+
 static int ind = 0;
+static int ind_e = 0;
 
 EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *userData ) {
 
@@ -523,42 +560,19 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
         }
     }
 
+    if( shape == 3 ) {
+        ind_e += 199;
+        for( int i = 0; i < 199; i++ ) {
+            // cout << arr[i] << endl;
+            ellipses.push_back( arr[i] );
+        }
+    }
+
     shape = 0;
     glutPostRedisplay();
 
     return 0;
 }
-
-struct Ellipse {
-
-    float x0 = 0.;
-    float y0 = 0.;
-
-    float x_1 = 0.;
-    float y_1 = 0.;
-    
-    float x_2 = -x_1;
-    float y_2 = y_1;
-    
-    float x_3 = -x_1;
-    float y_3 = -y_1;
-    
-    float x_4 = x_1;
-    float y_4 = -y_1;
-
-    std::vector<float> c_vec_1 = d.calcQuarterBezier( x0, y0, x_1, y_1 );
-    std::vector<float> c_vec_2 = d.calcQuarterBezier( x0, y0, x_2, y_2 );
-    std::vector<float> c_vec_3 = d.calcQuarterBezier( x0, y0, x_3, y_3 );
-    std::vector<float> c_vec_4 = d.calcQuarterBezier( x0, y0, x_4, y_4 );
-    
-    void drawEllipse( vector<float> color ) {
-        d.color = col1;
-        d.circle( x0, y0, x_1, y_1, c_vec_1 );
-        d.circle( x0, y0, x_2, y_2, c_vec_2 );
-        d.circle( x0, y0, x_3, y_3, c_vec_3 );
-        d.circle( x0, y0, x_4, y_4, c_vec_4 );        
-    }
-};
 
 Ellipse e { 0., 0., .5, .5 };
 
@@ -595,6 +609,7 @@ void c() {
 
     d.color = col1_1;
     d.rect( &rects[0], ind );
+    d.vertex( &ellipses[0], ind_e );
 
 }
 
