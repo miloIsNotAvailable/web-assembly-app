@@ -552,6 +552,11 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
         position.x, position.dy,
     };
 
+    float arr_el[] = {
+        position.x, position.y,
+        position.dx, position.dy
+    };
+
     if( shape == 1 ) {
         ind += 6;
         for( int i = 0; i < 12; i++ ) {
@@ -561,8 +566,8 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
     }
 
     if( shape == 3 ) {
-        ind_e += 199;
-        for( int i = 0; i < 199; i++ ) {
+        ind_e += 4;
+        for( int i = 0; i < 4; i++ ) {
             // cout << arr[i] << endl;
             ellipses.push_back( arr[i] );
         }
@@ -596,8 +601,8 @@ void c() {
 
             // glClear(GL_COLOR_BUFFER_BIT);
 
-            Ellipse ellipse { .5, .5, 1., 1. };
-            ellipse.drawEllipse( col1 );
+            // Ellipse ellipse { .5, .5, 1., 1. };
+            // ellipse.drawEllipse( col1 );
 
             // glutPostRedisplay();
             break;
@@ -609,7 +614,11 @@ void c() {
 
     d.color = col1_1;
     d.rect( &rects[0], ind );
-    d.vertex( &ellipses[0], ind_e );
+    // d.vertex( &ellipses[0], ind_e );
+    for( int i = 0; i < ind_e; i+=4 ) {
+        Ellipse ellipse { ellipses[i], ellipses[i+1], ellipses[i+2], ellipses[i+3] };
+        ellipse.drawEllipse( col1 );
+    }
 
 }
 
