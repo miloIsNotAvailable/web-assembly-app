@@ -80,7 +80,7 @@ class Bezier {
             int n = vx_vec.size() - 1;
             int v = 0;
 
-            for( float t = 0.; t < 1.; t += 0.01 ) {
+            for( float t = 0.; t < 1.; t += 0.05 ) {
 
                 float curveXpoint{ 0 };
                 float curveYpoint{ 0 };
@@ -265,7 +265,7 @@ class Vertex {
             // and each elements is a float
             // thus compiler assigns it 4 bytes + 3 for padding
             // sos in total sizeof is 199 * ( 1 + 3 + 4 )
-            glBufferData(GL_ARRAY_BUFFER, 199 * 2 * sizeof( float* ), arr, GL_DYNAMIC_DRAW); // Send the vert data to the buffer
+            glBufferData(GL_ARRAY_BUFFER, 39 * 2 * sizeof( float* ), arr, GL_DYNAMIC_DRAW); // Send the vert data to the buffer
 
             vector<float> lineColor = { 1., 1., 1. };
             glUniform3fv(glGetUniformLocation(shaders.shaderProgram, "color"), 1, &color[0]);
@@ -332,7 +332,7 @@ class Draw {
             vertex.draw( col, 4 );
 
             vertex.arr = &arr_c[0];
-            vertex.draw( color, 199 );
+            vertex.draw( color, 39 );
     }
     public:
         std::vector<float> color;
@@ -409,10 +409,10 @@ std::vector<float> col1 = { 1., 1., 1. };
 std::vector<float> col2 = { 0., 0.521, 1. };
 std::vector<float> col3 = { 1., 0., 0.258 };
 
-std::vector<float> c_vec_1 = d.calcQuarterBezier( 0.5, 0., .5, .5 );
-std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 0., -.5, .5 );
-std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 0., -.5, -.5 );
-std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 0., .5, -.5 );
+// std::vector<float> c_vec_1 = d.calcQuarterBezier( 0.5, 0., .5, .5 );
+// std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 0., -.5, .5 );
+// std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 0., -.5, -.5 );
+// std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 0., .5, -.5 );
 
 int shape = 0;
 void choose_shape( int shape_ ) {
@@ -424,10 +424,10 @@ std::vector<float> col1_1 = { 1., 1., 1. };
 std::vector<float> col2_1 = { 0., 0.521, 1. };
 std::vector<float> col3_1 = { 1., 0., 0.258 };
 
-std::vector<float> c_vec_1_1 = d.calcQuarterBezier( 0., 0., .5, .5 );
-std::vector<float> c_vec_2_1 = d.calcQuarterBezier( 0., 0., -.5, .5 );
-std::vector<float> c_vec_3_1 = d.calcQuarterBezier( 0., 0., -.5, -.5 );
-std::vector<float> c_vec_4_1 = d.calcQuarterBezier( 0., 0., .5, -.5 );
+// std::vector<float> c_vec_1_1 = d.calcQuarterBezier( 0., 0., .5, .5 );
+// std::vector<float> c_vec_2_1 = d.calcQuarterBezier( 0., 0., -.5, .5 );
+// std::vector<float> c_vec_3_1 = d.calcQuarterBezier( 0., 0., -.5, -.5 );
+// std::vector<float> c_vec_4_1 = d.calcQuarterBezier( 0., 0., .5, -.5 );
 
 struct Position {
     float x = 0.;
@@ -579,13 +579,13 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
     return 0;
 }
 
-Ellipse e { 0., 0., .5, .5 };
+// Ellipse e { 0., 0., .5, .5 };
 
 void c() {
     glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    e.drawEllipse( col1 );
+    // e.drawEllipse( col1 );
 
     // cout << shape << endl;
 
@@ -612,13 +612,20 @@ void c() {
         cout << i << endl;
     }
 
-    d.color = col1_1;
-    d.rect( &rects[0], ind );
     // d.vertex( &ellipses[0], ind_e );
     for( int i = 0; i < ind_e; i+=4 ) {
+        
         Ellipse ellipse { ellipses[i], ellipses[i+1], ellipses[i+2], ellipses[i+3] };
+        // ellipse.x0 = ellipses[i]; 
+        // ellipse.y0 = ellipses[i+1];
+        // ellipse.x_1 = ellipses[i+2];
+        // ellipse.y_1 = ellipses[i+3];
+
         ellipse.drawEllipse( col1 );
     }
+
+    d.color = col1_1;
+    d.rect( &rects[0], ind );
 
 }
 
