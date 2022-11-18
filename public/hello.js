@@ -4927,17 +4927,16 @@ var ASM_CONSTS = {
       }
     }
   Module["webglGetUniformLocation"] = webglGetUniformLocation;
+  function _glUniform1f(location, v0) {
+      GLctx.uniform1f(webglGetUniformLocation(location), v0);
+    }
+  Module["_glUniform1f"] = _glUniform1f;
+
   function _glUniform3fv(location, count, value) {
   
       count && GLctx.uniform3fv(webglGetUniformLocation(location), HEAPF32, value>>2, count*3);
     }
   Module["_glUniform3fv"] = _glUniform3fv;
-
-  function _glUniformMatrix4fv(location, count, transpose, value) {
-  
-      count && GLctx.uniformMatrix4fv(webglGetUniformLocation(location), !!transpose, HEAPF32, value>>2, count*16);
-    }
-  Module["_glUniformMatrix4fv"] = _glUniformMatrix4fv;
 
   function _glUseProgram(program) {
       program = GL.programs[program];
@@ -6735,8 +6734,8 @@ var asmLibraryArg = {
   "glLineWidth": _glLineWidth,
   "glLinkProgram": _glLinkProgram,
   "glShaderSource": _glShaderSource,
+  "glUniform1f": _glUniform1f,
   "glUniform3fv": _glUniform3fv,
-  "glUniformMatrix4fv": _glUniformMatrix4fv,
   "glUseProgram": _glUseProgram,
   "glVertexAttribPointer": _glVertexAttribPointer,
   "glutDisplayFunc": _glutDisplayFunc,

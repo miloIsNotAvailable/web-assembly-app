@@ -4939,6 +4939,11 @@ var ASM_CONSTS = {
       }
     }
   Module["webglGetUniformLocation"] = webglGetUniformLocation;
+  function _glUniform1f(location, v0) {
+      GLctx.uniform1f(webglGetUniformLocation(location), v0);
+    }
+  Module["_glUniform1f"] = _glUniform1f;
+
   function _glUniform3fv(location, count, value) {
   
       count && GLctx.uniform3fv(webglGetUniformLocation(location), HEAPF32, value>>2, count*3);
@@ -6747,6 +6752,7 @@ var asmLibraryArg = {
   "glLineWidth": _glLineWidth,
   "glLinkProgram": _glLinkProgram,
   "glShaderSource": _glShaderSource,
+  "glUniform1f": _glUniform1f,
   "glUniform3fv": _glUniform3fv,
   "glUniformMatrix4fv": _glUniformMatrix4fv,
   "glUseProgram": _glUseProgram,

@@ -195,12 +195,14 @@ class Render {
         "#endif\n"
         "attribute vec3 aPos;\n"        
         "uniform mat4 SM;\n"    
+        "uniform float SMX;\n"    
+        "uniform float TMX;\n"    
         "uniform mat4 TM;\n"    
         "\n" 
         "void main() {\n"
         "   float u = aPos.x;\n"
         "   float v = aPos.y;\n"
-        "    gl_Position =  vec4(aPos, 1.) * TM * SM;\n"
+        "    gl_Position =  vec4(aPos.x * SMX, aPos.y * SMX + TMX, aPos.z, 1.);\n"
         "    gl_PointSize = 10.;\n"
         "}\n\0";
 
@@ -270,22 +272,25 @@ class Vertex {
             vector<float> lineColor = { 1., 1., 1. };
             glUniform3fv(glGetUniformLocation(shaders.shaderProgram, "color"), 1, &color[0]);
 
-            GLfloat SM[] = {
-                *p, 0., 0., 0.,
-                0., *p, 0., 0.,
-                0., 0., 1., 0.,
-                0., 0., 0., 1.,
-            };
+            // GLfloat SM[] = {
+            //     *p, 0., 0., 0.,
+            //     0., *p, 0., 0.,
+            //     0., 0., 1., 0.,
+            //     0., 0., 0., 1.,
+            // };
 
-            GLfloat TM[] = {
-                1., 0., 0., 0.,
-                0., 1., 0., *ty,
-                0., 0., 1., 0.,
-                0., 0., 0., 1.,
-            };
+            // GLfloat TM[] = {
+            //     1., 0., 0., 0.,
+            //     0., 1., 0., *ty,
+            //     0., 0., 1., 0.,
+            //     0., 0., 0., 1.,
+            // };
 
-            glUniformMatrix4fv(glGetUniformLocation(shaders.shaderProgram, "SM"), 1, GL_FALSE, &SM[0]);
-            glUniformMatrix4fv(glGetUniformLocation(shaders.shaderProgram, "TM"), 1, GL_FALSE, &TM[0]);
+            glUniform1f( glGetUniformLocation(shaders.shaderProgram, "SMX"), *p );
+            glUniform1f( glGetUniformLocation(shaders.shaderProgram, "TMX"), *ty );
+
+            // glUniformMatrix4fv(glGetUniformLocation(shaders.shaderProgram, "SM"), 1, GL_FALSE, &SM[0]);
+            // glUniformMatrix4fv(glGetUniformLocation(shaders.shaderProgram, "TM"), 1, GL_FALSE, &TM[0]);
 
             glLineWidth( 3 );
             // glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, nullptr); // Draw the data using the element array
@@ -436,7 +441,15 @@ struct Position {
     float dy = 1.; 
 };
 
+struct Dot {
+    float x = 0.;
+    float y = 0.;
+    // float r_ = 0.;
+    // glPointSize( r_ );    
+};
+
 Position position;
+Dot dot{ 0., 0. };
 
 float mid = 1920. * .5;
 float mid_y = 1080. * .5;
@@ -501,8 +514,8 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
 
 EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userData ) {
 
-    if( shape == 0 || !mousedown ) return 0;
-    
+    if( !mousedown ) return 0;
+
     glClearColor(0.188, 0.188, 0.188, .0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -521,13 +534,37 @@ EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userDat
     position.dx = (e->screenX - mid)/mid;
     position.dy = position.y + (mid_y - e->screenY)/mid_y;
 
+
+    if( shape == 0 ) {
+        
+        cout << (e->screenX - mid)/mid << endl;
+        
+        if( (e->screenX - mid)/mid <= dot.x + 10 && (e->screenX - mid)/mid <= dot.y + 10 ) {
+
+            dot.x = (e->screenX - mid)/mid;
+            dot.y = position.y + (mid_y - e->screenY)/mid_y;
+        }
+
+        float dot_arr[] = {
+            dot.x, dot.y
+        };
+
+        vertex.arr = dot_arr;
+        vertex.draw( col1, 1, GL_POINTS );
+    }
     // glClear(GL_COLOR_BUF/FER_BIT);
+    
+    if( shape == 1 ) {
+        
+        d.color = col1;
+        d.rect( arr, 6 );
+    }
 
-    d.color = col1;
-    d.rect( arr, 6 );
+    if( shape == 3 ) {
 
-    Ellipse el { position.x, position.y, position.dx, position.dy };
-    el.drawEllipse( col1 );
+        Ellipse el { position.x, position.y, position.dx, position.dy };
+        el.drawEllipse( col1 );
+    }
 
     return 0;
 }
@@ -584,6 +621,13 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
 void c() {
     glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    float dot_arr[] = {
+        dot.x, dot.y
+    };
+
+    vertex.arr = dot_arr;
+    vertex.draw( col1, 1, GL_POINTS );
 
     // e.drawEllipse( col1 );
 
@@ -657,7 +701,7 @@ int main()
 
     glutDisplayFunc( c );
     glutPostRedisplay();
-    // glutMouseFunc(mouse);
+    // glutMouseFunc(mousescroll);
     // glutMainLoop();
     // emscripten_request_animation_frame_loop( cb, userData );
     // glutReshapeFunc(reshape);
