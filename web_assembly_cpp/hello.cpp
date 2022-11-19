@@ -488,6 +488,8 @@ struct Ellipse {
     }
 };
 
+bool collision = false;
+
 EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userData)
 {
   printf("%s, screen: (%ld,%ld), client: (%ld,%ld),%s%s%s%s button: %hu, buttons: %hu, movement: (%ld,%ld), canvas: (%ld,%ld), timestamp: %lf\n",
@@ -498,13 +500,19 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
 
     mousedown = true;
 
-
     position.x = (e->screenX - mid)/mid;
     
     position.y = (mid_y - e->screenY)/mid_y;
 
     cout << "x ->" << position.x << endl;
     // cout << position.y << endl;
+
+    cout << (e->screenX - mid)/mid << endl;
+    cout << "mouse x: " << dot.x << endl;
+
+    if( (e->screenX - mid)/mid <= dot.x + .2 && (e->screenX - mid)/mid >= dot.x - .2 ) {
+        collision = true;
+    }
 
     cout << shape << endl;
     glutPostRedisplay();
@@ -530,16 +538,14 @@ EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userDat
     };
 
     // Draw d;
-
     position.dx = (e->screenX - mid)/mid;
     position.dy = position.y + (mid_y - e->screenY)/mid_y;
 
+    cout << "is colliding" << collision << endl;
 
     if( shape == 0 ) {
         
-        cout << (e->screenX - mid)/mid << endl;
-        
-        if( (e->screenX - mid)/mid <= dot.x + 10 && (e->screenX - mid)/mid <= dot.y + 10 ) {
+        if( collision ) {
 
             dot.x = (e->screenX - mid)/mid;
             dot.y = position.y + (mid_y - e->screenY)/mid_y;
@@ -578,6 +584,7 @@ static int ind_e = 0;
 EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *userData ) {
 
     mousedown = false;
+    collision = false;
 
     float arr[] = {
         position.x, position.y,
