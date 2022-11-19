@@ -507,9 +507,6 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
     cout << "x ->" << position.x << endl;
     // cout << position.y << endl;
 
-    cout << (e->screenX - mid)/mid << endl;
-    cout << "mouse x: " << dot.x << endl;
-
     if( (e->screenX - mid)/mid <= dot.x + .2 && (e->screenX - mid)/mid >= dot.x - .2 ) {
         collision = true;
     }
@@ -540,8 +537,6 @@ EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userDat
     // Draw d;
     position.dx = (e->screenX - mid)/mid;
     position.dy = position.y + (mid_y - e->screenY)/mid_y;
-
-    cout << "is colliding" << collision << endl;
 
     if( shape == 0 ) {
         
@@ -682,10 +677,101 @@ void c() {
 
 void* userData;
 
+struct Points {
+    int data;
+    Points* next = NULL;
+    Points *head = NULL;
+
+    Points( int val = NULL ) {
+        data = val;
+        next = NULL;
+    }
+
+    void append(int new_data) {
+        
+        Points** head_ref = &head;
+        
+        Points* new_node = new Points();
+
+        Points* last = *head_ref;
+
+        new_node->data = new_data;
+
+        new_node->next = NULL;
+
+        if (*head_ref == NULL)
+        {
+            *head_ref = new_node;
+            return;
+        }
+
+        while (last->next != NULL)
+        {
+            last = last->next;
+        }
+        last->next = new_node;
+        return;
+    }
+
+    void insertafter( int key, int val ) {
+        Points* n = new Points( val );
+        // n->data = val;
+        if ( key == head->data ) {
+            n->next = head->next;
+            head->next = n;
+            return;
+        }
+        
+        Points* temp = head;
+        while (temp->data != key) {
+            temp = temp->next;
+            if (temp == NULL) {
+                return;
+            }
+        }
+        n->next = temp->next;
+        temp->next = n;
+    }
+
+    void insertAtIndex( int ind, int val ) {
+
+        Points* temp = head;
+        for( int i = 0; i < ind - 1; i ++ ) {
+            
+            temp = temp->next;
+            
+            if (temp == NULL) {
+                return;
+            }
+        }
+
+        insertafter( temp->data, val );
+    }
+
+    void printList() {
+        while (head != NULL) {
+            cout << head->data << "-->";
+            head = head->next;
+        }
+
+        if( head == NULL ) {
+            cout << "null" << endl;
+        }
+    }
+};
+
+Points points;
+
 int main()
 {
     print( "Hello world!" );
 
+    points.append( 4046 );
+    points.append( 6020 );
+    // points.insertafter( 6020, 2 );
+    points.insertAtIndex( 1, 2 );
+    points.printList();
+    
 	// setting up EmscriptenWebGLContextAttributes
 	EmscriptenWebGLContextAttributes attr;
 	emscripten_webgl_init_context_attributes(&attr);
