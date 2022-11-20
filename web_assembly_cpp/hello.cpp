@@ -677,101 +677,190 @@ void c() {
 
 void* userData;
 
+struct Point {
+    float x;
+    float y;
+    int id = 0.;
+};
+
 struct Points {
-    int data;
+    Point data;
+    
     Points* next = NULL;
     Points *head = NULL;
 
-    Points( int val = NULL ) {
-        data = val;
-        next = NULL;
-    }
+    bool midpoint = false;
 
-    void append(int new_data) {
-        
-        Points** head_ref = &head;
-        
-        Points* new_node = new Points();
+    int length = 0;
 
-        Points* last = *head_ref;
+};
 
-        new_node->data = new_data;
+void append( Points** head_ref, Point new_data ) {
+    
+    // Points** head_ref = &head;
+    
+    Points* new_node = new Points();
 
-        new_node->next = NULL;
+    Points* last = *head_ref;
 
-        if (*head_ref == NULL)
-        {
-            *head_ref = new_node;
-            return;
-        }
+    // head_ref->length ++;
+    new_node->data = new_data;
+    // new_node->data.id = length - 1;
 
-        while (last->next != NULL)
-        {
-            last = last->next;
-        }
-        last->next = new_node;
+    new_node->next = NULL;
+
+    if (*head_ref == NULL)
+    {
+        *head_ref = new_node;
         return;
     }
 
-    void insertafter( int key, int val ) {
-        Points* n = new Points( val );
-        // n->data = val;
-        if ( key == head->data ) {
-            n->next = head->next;
-            head->next = n;
+    while (last->next != NULL)
+    {
+        last = last->next;
+    }
+    last->next = new_node;
+    return;
+}
+
+void insertafter( Points* head, int key, Point val ) {
+    
+    Points* n = new Points();
+    n->data = val;
+
+    // length ++;
+
+    if ( key == head->data.id ) {
+        n->next = head->next;
+        head->next = n;
+        return;
+    }
+    
+    Points* temp = head;
+    
+    while (temp->data.id != key) {
+        temp = temp->next;
+        if (temp == NULL) {
             return;
         }
+    }
+
+    n->next = temp->next;
+    temp->next = n;
+}
+
+void insertAtIndex( Points* head, int ind, Point val ) {
+
+    Points* temp = head;
+    for( int i = 0; i < ind - 1; i ++ ) {
         
-        Points* temp = head;
-        while (temp->data != key) {
-            temp = temp->next;
-            if (temp == NULL) {
-                return;
-            }
-        }
-        n->next = temp->next;
-        temp->next = n;
-    }
-
-    void insertAtIndex( int ind, int val ) {
-
-        Points* temp = head;
-        for( int i = 0; i < ind - 1; i ++ ) {
-            
-            temp = temp->next;
-            
-            if (temp == NULL) {
-                return;
-            }
-        }
-
-        insertafter( temp->data, val );
-    }
-
-    void printList() {
-        while (head != NULL) {
-            cout << head->data << "-->";
-            head = head->next;
-        }
-
-        if( head == NULL ) {
-            cout << "null" << endl;
+        temp->data.id = i;
+        temp = temp->next;
+        
+        if (temp == NULL) {
+            return;
         }
     }
-};
+
+    insertafter( head, temp->data.id, val );
+}
+
+static void printList( Points* head ) {
+    
+    // Points *head = head;
+
+    int count = 0;
+    while (head != NULL) {
+        count ++;
+        printf( "x: %f, y: %f, ind: %d --> ", head->data.x, head->data.y, head->data.id );
+        // cout << head->data.x << "-->";
+        head = head->next;
+    }
+
+    if( head == NULL ) {
+        cout << "null" << endl;
+    }
+    cout << "linked list len: " << count << endl;
+}
+
+Point indData( Points* head, int index ) {
+    int count = 0;
+    while (head != NULL) {
+        count ++;
+        head = head->next;
+        if( count == index ) {
+            return head->data;   
+        }
+    }
+
+    return Point{ 0., 0. };
+}
+
+void addMid( Points* head ) {
+    
+    int count = 0;
+    Point e = indData( head, 2 );
+
+    // if( !count ) {
+    //     Point ind1 = head->data;
+    //     Point ind2 = head->next ? head->next->data : Point{ 0., 0. };
+
+    //     // printf( "( ind1: %f )--> ", head->data.x );
+    //     // printf( "( ind2: %f )--> ", head->next ? head->next->data.x : 0. );
+
+    //     // int new_ind = 2 * count + 1;
+    //     // int mid_ind = floor(( count + new_ind ) * .5);
+
+    //     float mid_x = (ind1.x + ind2.x) * .5;
+    //     float mid_y = (ind1.y + ind2.y) * .5;
+
+    //     // cout << "mid_x " << mid_x << endl;
+    //     // cout << "mid_y " << mid_y << endl;
+        
+    //     insertAtIndex( head, count, Point { mid_x, mid_y } );
+    //     // head = head->next;
+    // }
+
+    while( head != NULL ) {
+
+        count ++;
+
+        Point ind1 = head->data;
+        Point ind2 = head->next ? head->next->data : Point{ 0., 0. };
+
+        // int new_ind = 2 * count + 1;
+        // int mid_ind = floor(( count + new_ind ) * .5);
+
+        float mid_x = (ind1.x + ind2.x) * .5;
+        float mid_y = (ind1.y + ind2.y) * .5;
+
+        cout << head->data.x << endl;
+
+        // cout << "mid_x " << mid_x << endl;
+        // cout << "mid_y " << mid_y << endl;
+        
+        insertAtIndex( head, count, Point { mid_x, mid_y } );
+        // printf( "ind1: %f, ind1:%f \n", ind1.x, ind1.y );
+        head = head->next;
+    }
+}
 
 Points points;
+Points* head = NULL;
 
 int main()
 {
     print( "Hello world!" );
 
-    points.append( 4046 );
-    points.append( 6020 );
-    // points.insertafter( 6020, 2 );
-    points.insertAtIndex( 1, 2 );
-    points.printList();
-    
+    append( &head, Point { 0., 0. } );
+    append( &head, Point { 1., 0. } );
+    append( &head, Point { 1., -1. } );
+    append( &head, Point { 0., -1. } );
+
+    // printList( head );
+    addMid( head );
+    printList( head );
+
 	// setting up EmscriptenWebGLContextAttributes
 	EmscriptenWebGLContextAttributes attr;
 	emscripten_webgl_init_context_attributes(&attr);
