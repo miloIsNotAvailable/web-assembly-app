@@ -801,47 +801,19 @@ void addMid( Points* head ) {
     int count = 0;
     Point e = indData( head, 2 );
 
-    // if( !count ) {
-    //     Point ind1 = head->data;
-    //     Point ind2 = head->next ? head->next->data : Point{ 0., 0. };
-
-    //     // printf( "( ind1: %f )--> ", head->data.x );
-    //     // printf( "( ind2: %f )--> ", head->next ? head->next->data.x : 0. );
-
-    //     // int new_ind = 2 * count + 1;
-    //     // int mid_ind = floor(( count + new_ind ) * .5);
-
-    //     float mid_x = (ind1.x + ind2.x) * .5;
-    //     float mid_y = (ind1.y + ind2.y) * .5;
-
-    //     // cout << "mid_x " << mid_x << endl;
-    //     // cout << "mid_y " << mid_y << endl;
-        
-    //     insertAtIndex( head, count, Point { mid_x, mid_y } );
-    //     // head = head->next;
-    // }
-
     while( head != NULL ) {
-
-        count ++;
 
         Point ind1 = head->data;
         Point ind2 = head->next ? head->next->data : Point{ 0., 0. };
 
-        // int new_ind = 2 * count + 1;
-        // int mid_ind = floor(( count + new_ind ) * .5);
-
         float mid_x = (ind1.x + ind2.x) * .5;
         float mid_y = (ind1.y + ind2.y) * .5;
 
-        cout << head->data.x << endl;
+        // cout << mid_x << mid_y << endl;
 
-        // cout << "mid_x " << mid_x << endl;
-        // cout << "mid_y " << mid_y << endl;
-        
         insertAtIndex( head, count, Point { mid_x, mid_y } );
         // printf( "ind1: %f, ind1:%f \n", ind1.x, ind1.y );
-        head = head->next;
+        head = head->next->next;
     }
 }
 
