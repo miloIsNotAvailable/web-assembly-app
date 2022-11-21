@@ -488,7 +488,215 @@ struct Ellipse {
     }
 };
 
+// Point main building block of triangles and squares
+struct Point {
+    float x;
+    float y;
+    int id = 0.;
+
+    bool collision = false;
+
+    void collides( float sx, float sy ) {        
+        if( sx <= x + .2 && sy >= x - .2 ) {
+            collision = true;
+        }
+    }
+
+    void move( float sx, float sy ) {
+        if( collision ) {
+            x = sx;
+            y = sy;
+
+            float dot_arr[] = {
+                x, y
+            };
+
+            vertex.arr = dot_arr;
+            vertex.draw( col1, 1, GL_POINTS );
+        }
+    }
+};
+// Points struct stores Point struct
+// and works the same as linked list
+struct Points {
+    Point data;
+    
+    Points* next = NULL;
+    Points *head = NULL;
+
+    bool midpoint = false;
+
+    int length = 0;
+
+};
+
+// appends to the end of the list
+void append( Points** head_ref, Point new_data ) {
+    
+    // Points** head_ref = &head;
+    
+    Points* new_node = new Points();
+
+    Points* last = *head_ref;
+
+    // head_ref->length ++;
+    new_node->data = new_data;
+    // new_node->data.id = length - 1;
+
+    new_node->next = NULL;
+
+    if (*head_ref == NULL)
+    {
+        *head_ref = new_node;
+        return;
+    }
+
+    while (last->next != NULL)
+    {
+        last = last->next;
+    }
+    last->next = new_node;
+    return;
+}
+
+// inserts after given value
+// (use insertAtIndex instead, its simpler)
+void insertafter( Points* head, int key, Point val ) {
+    
+    Points* n = new Points();
+    n->data = val;
+
+    // length ++;
+
+    if ( key == head->data.id ) {
+        n->next = head->next;
+        head->next = n;
+        return;
+    }
+    
+    Points* temp = head;
+    
+    while (temp->data.id != key) {
+        temp = temp->next;
+        if (temp == NULL) {
+            return;
+        }
+    }
+
+    n->next = temp->next;
+    temp->next = n;
+}
+
+// inserts at given index
+void insertAtIndex( Points* head, int ind, Point val ) {
+
+    Points* temp = head;
+    for( int i = 0; i < ind - 1; i ++ ) {
+        
+        temp->data.id = i;
+        temp = temp->next;
+        
+        if (temp == NULL) {
+            return;
+        }
+    }
+
+    insertafter( head, temp->data.id, val );
+}
+
+void printList( Points* head ) {
+    
+    // Points *head = head;
+
+    int count = 0;
+    while (head != NULL) {
+        count ++;
+        printf( "x: %f, y: %f, ind: %d --> ", head->data.x, head->data.y, head->data.id );
+        // cout << head->data.x << "-->";
+        head = head->next;
+    }
+
+    if( head == NULL ) {
+        cout << "null" << endl;
+    }
+    cout << "linked list len: " << count << endl;
+}
+
+int length( Points* head ) {
+
+    int count = 0;
+    Points* curr = head;
+
+    while( curr != NULL ) {
+        count++;
+        curr = curr->next;
+    }
+
+    return count;
+}
+
+// get data ny index
+Point indData( Points* head, int index ) {
+    int count = 0;
+    while (head != NULL) {
+        count ++;
+        head = head->next;
+        if( count == index ) {
+            return head->data;   
+        }
+    }
+
+    return Point{ 0., 0. };
+}
+
+// add middle point to each building point
+void addMid( Points* head ) {
+    
+    int count = 0;
+    Point e = indData( head, 2 );
+
+    while( head != NULL ) {
+
+        Point ind1 = head->data;
+        Point ind2 = head->next ? head->next->data : e;
+
+        float mid_x = (ind1.x + ind2.x) * .5;
+        float mid_y = (ind1.y + ind2.y) * .5;
+
+        insertAtIndex( head, count, Point { mid_x, mid_y } );
+
+        // move by 2 since we're adding a middlepoint
+        head = head->next->next;
+    }
+}
+
+// convert linked list to array
+// so its easier to use
+Point* convertToArr( Points* head ) {
+    
+    int len = length( head );
+    Point arr[len];
+    int i = 0;
+
+    Points* curr = head;
+
+    while( curr != NULL ) {
+        arr[ i++ ] = curr->data;
+        curr = curr->next;
+    }
+
+    return arr;
+}
+
+Points points;
+Points* head = NULL;
+
 bool collision = false;
+
+Point rect_1 = Point { position.x, position.y };
+Point rect_2 = Point { position.dx, position.y };
+Point rect_3 = Point { position.dx, position.dy };
+Point rect_4 = Point { position.x, position.dy };
 
 EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userData)
 {
@@ -500,12 +708,14 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
 
     mousedown = true;
 
-    position.x = (e->screenX - mid)/mid;
-    
+    position.x = (e->screenX - mid)/mid;    
     position.y = (mid_y - e->screenY)/mid_y;
 
     cout << "x ->" << position.x << endl;
     // cout << position.y << endl;
+
+    rect_1.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
+    // rect_2.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
 
     if( (e->screenX - mid)/mid <= dot.x + .2 && (e->screenX - mid)/mid >= dot.x - .2 ) {
         collision = true;
@@ -539,24 +749,31 @@ EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userDat
     position.dy = position.y + (mid_y - e->screenY)/mid_y;
 
     if( shape == 0 ) {
-        
-        if( collision ) {
 
-            dot.x = (e->screenX - mid)/mid;
-            dot.y = position.y + (mid_y - e->screenY)/mid_y;
-        }
+        rect_1.move( (e->screenX - mid)/mid, position.y + (mid_y - e->screenY)/mid_y );
 
-        float dot_arr[] = {
-            dot.x, dot.y
-        };
+        // if( collision ) {
 
-        vertex.arr = dot_arr;
-        vertex.draw( col1, 1, GL_POINTS );
+        //     dot.x = (e->screenX - mid)/mid;
+        //     dot.y = position.y + (mid_y - e->screenY)/mid_y;
+        // }
+
+        // float dot_arr[] = {
+        //     dot.x, dot.y
+        // };
+
+        // vertex.arr = dot_arr;
+        // vertex.draw( col1, 1, GL_POINTS );
     }
     // glClear(GL_COLOR_BUF/FER_BIT);
     
     if( shape == 1 ) {
         
+        rect_1 = Point { position.x, position.y, rect_1.collision };
+        rect_2 = Point { position.dx, position.y, false };
+        rect_3 = Point { position.dx, position.dy, false };
+        rect_4 = Point { position.x, position.dy, false };
+
         d.color = col1;
         d.rect( arr, 6 );
     }
@@ -580,6 +797,15 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
 
     mousedown = false;
     collision = false;
+
+    rect_1.collision = false;
+
+    append( &head, rect_1 );
+    append( &head, rect_2 );
+    append( &head, rect_3 );
+    append( &head, rect_4 );
+
+    addMid( head );
 
     float arr[] = {
         position.x, position.y,
@@ -620,38 +846,57 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
 
 // Ellipse e { 0., 0., .5, .5 };
 
+void* userData;
+
 void c() {
     glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    float dot_arr[] = {
-        dot.x, dot.y
+    Point* arr = convertToArr( head );
+
+    float rect_arr_1[] = {
+        rect_1.x, rect_1.y
     };
 
-    vertex.arr = dot_arr;
-    vertex.draw( col1, 1, GL_POINTS );
+    float rect_arr_2[] = {
+        rect_2.x, rect_2.y
+    };
 
-    // e.drawEllipse( col1 );
+    float rect_arr_3[] = {
+        rect_3.x, rect_3.y
+    };
 
-    // cout << shape << endl;
+    float rect_arr_4[] = {
+        rect_4.x, rect_4.y
+    };
 
-    switch( shape ) {
+    float point_sqr_arr[] = {
 
-        case 1:
-            // glClear(GL_COLOR_BUFFER_BIT);
-
-            // glutPostRedisplay();
-            break;
+        // main sides        
+        arr[0].x, arr[0].y,
+        arr[2].x, arr[2].y,
+        rect_1.x, rect_1.y,
         
-        case 3:
+        arr[2].x, arr[2].y,
+        arr[4].x, arr[4].y,
+        rect_1.x, rect_1.y,
+        
+        // midpoints
+        arr[0].x, arr[0].y,
+        arr[1].x, arr[1].y,
+        arr[2].x, arr[2].y,
+        
+        arr[2].x, arr[2].y,
+        arr[3].x, arr[3].y,
+        arr[4].x, arr[4].y,
 
-            // glClear(GL_COLOR_BUFFER_BIT);
+        arr[4].x, arr[4].y,
+        arr[5].x, arr[5].y,
+        rect_1.x, rect_1.y,
 
-            // Ellipse ellipse { .5, .5, 1., 1. };
-            // ellipse.drawEllipse( col1 );
-
-            // glutPostRedisplay();
-            break;
+        arr[5].x, arr[5].y,
+        arr[7].x, arr[7].y,
+        arr[0].x, arr[0].y
     };
 
     for( auto i: rects ) {
@@ -662,10 +907,6 @@ void c() {
     for( int i = 0; i < ind_e; i+=4 ) {
         
         Ellipse ellipse { ellipses[i], ellipses[i+1], ellipses[i+2], ellipses[i+3] };
-        // ellipse.x0 = ellipses[i]; 
-        // ellipse.y0 = ellipses[i+1];
-        // ellipse.x_1 = ellipses[i+2];
-        // ellipse.y_1 = ellipses[i+3];
 
         ellipse.drawEllipse( col1 );
     }
@@ -673,165 +914,35 @@ void c() {
     d.color = col1_1;
     d.rect( &rects[0], ind );
 
+    vertex.arr = point_sqr_arr;
+    vertex.draw( col1, 18, GL_TRIANGLES );
+    vertex.draw( col2, 18, GL_POINTS );
+    
+    vertex.arr = rect_arr_1;
+    vertex.draw( col3, 1, GL_POINTS );
+    
+    vertex.arr = rect_arr_2;
+    vertex.draw( col3, 1, GL_POINTS );
+    
+    vertex.arr = rect_arr_3;
+    vertex.draw( col3, 1, GL_POINTS );
+    
+    vertex.arr = rect_arr_4;
+    vertex.draw( col3, 1, GL_POINTS );
+
 }
-
-void* userData;
-
-struct Point {
-    float x;
-    float y;
-    int id = 0.;
-};
-
-struct Points {
-    Point data;
-    
-    Points* next = NULL;
-    Points *head = NULL;
-
-    bool midpoint = false;
-
-    int length = 0;
-
-};
-
-void append( Points** head_ref, Point new_data ) {
-    
-    // Points** head_ref = &head;
-    
-    Points* new_node = new Points();
-
-    Points* last = *head_ref;
-
-    // head_ref->length ++;
-    new_node->data = new_data;
-    // new_node->data.id = length - 1;
-
-    new_node->next = NULL;
-
-    if (*head_ref == NULL)
-    {
-        *head_ref = new_node;
-        return;
-    }
-
-    while (last->next != NULL)
-    {
-        last = last->next;
-    }
-    last->next = new_node;
-    return;
-}
-
-void insertafter( Points* head, int key, Point val ) {
-    
-    Points* n = new Points();
-    n->data = val;
-
-    // length ++;
-
-    if ( key == head->data.id ) {
-        n->next = head->next;
-        head->next = n;
-        return;
-    }
-    
-    Points* temp = head;
-    
-    while (temp->data.id != key) {
-        temp = temp->next;
-        if (temp == NULL) {
-            return;
-        }
-    }
-
-    n->next = temp->next;
-    temp->next = n;
-}
-
-void insertAtIndex( Points* head, int ind, Point val ) {
-
-    Points* temp = head;
-    for( int i = 0; i < ind - 1; i ++ ) {
-        
-        temp->data.id = i;
-        temp = temp->next;
-        
-        if (temp == NULL) {
-            return;
-        }
-    }
-
-    insertafter( head, temp->data.id, val );
-}
-
-static void printList( Points* head ) {
-    
-    // Points *head = head;
-
-    int count = 0;
-    while (head != NULL) {
-        count ++;
-        printf( "x: %f, y: %f, ind: %d --> ", head->data.x, head->data.y, head->data.id );
-        // cout << head->data.x << "-->";
-        head = head->next;
-    }
-
-    if( head == NULL ) {
-        cout << "null" << endl;
-    }
-    cout << "linked list len: " << count << endl;
-}
-
-Point indData( Points* head, int index ) {
-    int count = 0;
-    while (head != NULL) {
-        count ++;
-        head = head->next;
-        if( count == index ) {
-            return head->data;   
-        }
-    }
-
-    return Point{ 0., 0. };
-}
-
-void addMid( Points* head ) {
-    
-    int count = 0;
-    Point e = indData( head, 2 );
-
-    while( head != NULL ) {
-
-        Point ind1 = head->data;
-        Point ind2 = head->next ? head->next->data : Point{ 0., 0. };
-
-        float mid_x = (ind1.x + ind2.x) * .5;
-        float mid_y = (ind1.y + ind2.y) * .5;
-
-        // cout << mid_x << mid_y << endl;
-
-        insertAtIndex( head, count, Point { mid_x, mid_y } );
-        // printf( "ind1: %f, ind1:%f \n", ind1.x, ind1.y );
-        head = head->next->next;
-    }
-}
-
-Points points;
-Points* head = NULL;
 
 int main()
 {
     print( "Hello world!" );
 
-    append( &head, Point { 0., 0. } );
-    append( &head, Point { 1., 0. } );
-    append( &head, Point { 1., -1. } );
-    append( &head, Point { 0., -1. } );
+    // append( &head, Point { 0., 0. } );
+    // append( &head, Point { 1., 0. } );
+    // append( &head, Point { 1., -1. } );
+    // append( &head, Point { 0., -1. } );
 
+    // addMid( head );
     // printList( head );
-    addMid( head );
-    printList( head );
 
 	// setting up EmscriptenWebGLContextAttributes
 	EmscriptenWebGLContextAttributes attr;
