@@ -497,7 +497,7 @@ struct Point {
     bool collision = false;
 
     void collides( float sx, float sy ) {        
-        if( sx <= x + .2 && sy >= x - .2 ) {
+        if( sx <= x + .2 && sx >= x - .2 && sy <= y + .2 && sy >= y - 2. ) {
             collision = true;
         }
     }
@@ -715,6 +715,8 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
     // cout << position.y << endl;
 
     rect_1.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
+    rect_2.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
+    rect_3.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
     // rect_2.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
 
     if( (e->screenX - mid)/mid <= dot.x + .2 && (e->screenX - mid)/mid >= dot.x - .2 ) {
@@ -751,28 +753,18 @@ EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userDat
     if( shape == 0 ) {
 
         rect_1.move( (e->screenX - mid)/mid, position.y + (mid_y - e->screenY)/mid_y );
-
-        // if( collision ) {
-
-        //     dot.x = (e->screenX - mid)/mid;
-        //     dot.y = position.y + (mid_y - e->screenY)/mid_y;
-        // }
-
-        // float dot_arr[] = {
-        //     dot.x, dot.y
-        // };
-
-        // vertex.arr = dot_arr;
-        // vertex.draw( col1, 1, GL_POINTS );
+        rect_2.move( (e->screenX - mid)/mid, position.y + (mid_y - e->screenY)/mid_y );
+        rect_3.move( (e->screenX - mid)/mid, position.y + (mid_y - e->screenY)/mid_y );
+        rect_4.move( (e->screenX - mid)/mid, position.y + (mid_y - e->screenY)/mid_y );
     }
     // glClear(GL_COLOR_BUF/FER_BIT);
     
     if( shape == 1 ) {
         
         rect_1 = Point { position.x, position.y, rect_1.collision };
-        rect_2 = Point { position.dx, position.y, false };
-        rect_3 = Point { position.dx, position.dy, false };
-        rect_4 = Point { position.x, position.dy, false };
+        rect_2 = Point { position.dx, position.y, rect_2.collision };
+        rect_3 = Point { position.dx, position.dy, rect_3.collision };
+        rect_4 = Point { position.x, position.dy, rect_4.collision };
 
         d.color = col1;
         d.rect( arr, 6 );
@@ -799,6 +791,9 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
     collision = false;
 
     rect_1.collision = false;
+    rect_2.collision = false;
+    rect_3.collision = false;
+    rect_4.collision = false;
 
     append( &head, rect_1 );
     append( &head, rect_2 );
@@ -873,13 +868,17 @@ void c() {
     float point_sqr_arr[] = {
 
         // main sides        
-        arr[0].x, arr[0].y,
-        arr[2].x, arr[2].y,
+        // arr[0].x, arr[0].y,
+        // arr[2].x, arr[2].y,
         rect_1.x, rect_1.y,
+        rect_3.x, rect_3.y,
+        rect_4.x, rect_4.y,
         
-        arr[2].x, arr[2].y,
-        arr[4].x, arr[4].y,
+        // arr[2].x, arr[2].y,
+        // arr[4].x, arr[4].y,
         rect_1.x, rect_1.y,
+        rect_2.x, rect_2.y,
+        rect_4.x, rect_4.y,
         
         // midpoints
         arr[0].x, arr[0].y,
