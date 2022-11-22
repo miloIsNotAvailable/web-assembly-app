@@ -736,6 +736,8 @@ EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userDat
     glClearColor(0.188, 0.188, 0.188, .0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    glutPostRedisplay();
+
     float arr[] = {
         position.x, position.y,
         position.x, position.dy,
