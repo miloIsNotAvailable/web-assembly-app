@@ -414,11 +414,6 @@ std::vector<float> col1 = { 1., 1., 1. };
 std::vector<float> col2 = { 0., 0.521, 1. };
 std::vector<float> col3 = { 1., 0., 0.258 };
 
-// std::vector<float> c_vec_1 = d.calcQuarterBezier( 0.5, 0., .5, .5 );
-// std::vector<float> c_vec_2 = d.calcQuarterBezier( 0.5, 0., -.5, .5 );
-// std::vector<float> c_vec_3 = d.calcQuarterBezier( 0.5, 0., -.5, -.5 );
-// std::vector<float> c_vec_4 = d.calcQuarterBezier( 0.5, 0., .5, -.5 );
-
 int shape = 0;
 void choose_shape( int shape_ ) {
 
@@ -428,11 +423,6 @@ void choose_shape( int shape_ ) {
 std::vector<float> col1_1 = { 1., 1., 1. };
 std::vector<float> col2_1 = { 0., 0.521, 1. };
 std::vector<float> col3_1 = { 1., 0., 0.258 };
-
-// std::vector<float> c_vec_1_1 = d.calcQuarterBezier( 0., 0., .5, .5 );
-// std::vector<float> c_vec_2_1 = d.calcQuarterBezier( 0., 0., -.5, .5 );
-// std::vector<float> c_vec_3_1 = d.calcQuarterBezier( 0., 0., -.5, -.5 );
-// std::vector<float> c_vec_4_1 = d.calcQuarterBezier( 0., 0., .5, -.5 );
 
 struct Position {
     float x = 0.;
@@ -497,7 +487,10 @@ struct Point {
     bool collision = false;
 
     void collides( float sx, float sy ) {        
-        if( sx <= x + .2 && sx >= x - .2 && sy <= y + .2 && sy >= y - 2. ) {
+        
+        float r = .2;
+
+        if( sx <= x + r && sx >= x - r && sy <= y + r && sy >= y - r ) {
             collision = true;
         }
     }
@@ -717,7 +710,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
     rect_1.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
     rect_2.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
     rect_3.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
-    // rect_2.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
+    rect_4.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
 
     if( (e->screenX - mid)/mid <= dot.x + .2 && (e->screenX - mid)/mid >= dot.x - .2 ) {
         collision = true;
@@ -873,31 +866,31 @@ void c() {
         // arr[0].x, arr[0].y,
         // arr[2].x, arr[2].y,
         rect_1.x, rect_1.y,
-        rect_3.x, rect_3.y,
         rect_4.x, rect_4.y,
+        rect_2.x, rect_2.y,
         
         // arr[2].x, arr[2].y,
         // arr[4].x, arr[4].y,
-        rect_1.x, rect_1.y,
-        rect_2.x, rect_2.y,
         rect_4.x, rect_4.y,
+        rect_3.x, rect_3.y,
+        rect_2.x, rect_2.y,
         
         // midpoints
-        arr[0].x, arr[0].y,
-        arr[1].x, arr[1].y,
-        arr[2].x, arr[2].y,
+        // arr[0].x, arr[0].y,
+        // arr[1].x, arr[1].y,
+        // arr[2].x, arr[2].y,
         
-        arr[2].x, arr[2].y,
-        arr[3].x, arr[3].y,
-        arr[4].x, arr[4].y,
+        // arr[2].x, arr[2].y,
+        // arr[3].x, arr[3].y,
+        // arr[4].x, arr[4].y,
 
-        arr[4].x, arr[4].y,
-        arr[5].x, arr[5].y,
-        rect_1.x, rect_1.y,
+        // arr[4].x, arr[4].y,
+        // arr[5].x, arr[5].y,
+        // rect_1.x, rect_1.y,
 
-        arr[5].x, arr[5].y,
-        arr[7].x, arr[7].y,
-        arr[0].x, arr[0].y
+        // arr[5].x, arr[5].y,
+        // arr[7].x, arr[7].y,
+        // arr[0].x, arr[0].y
     };
 
     for( auto i: rects ) {
@@ -912,12 +905,12 @@ void c() {
         ellipse.drawEllipse( col1 );
     }
 
-    d.color = col1_1;
-    d.rect( &rects[0], ind );
+    // d.color = col1_1;
+    // d.rect( &rects[0], ind );
 
     vertex.arr = point_sqr_arr;
-    vertex.draw( col1, 18, GL_TRIANGLES );
-    vertex.draw( col2, 18, GL_POINTS );
+    vertex.draw( col1, 6, GL_TRIANGLES );
+    vertex.draw( col2, 6, GL_POINTS );
     
     vertex.arr = rect_arr_1;
     vertex.draw( col3, 1, GL_POINTS );
