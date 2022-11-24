@@ -81,7 +81,7 @@ class Bezier {
             int n = vx_vec.size() - 1;
             int v = 0;
 
-            for( float t = 0.; t < 1.; t += 0.05 ) {
+            for( float t = 0.; t < 1.; t += 0.1 ) {
 
                 float curveXpoint{ 0 };
                 float curveYpoint{ 0 };
@@ -98,28 +98,20 @@ class Bezier {
                 curve.push_back( curveXpoint );
                 curve.push_back( curveYpoint );
 
-                // leave index 0 as is
-                if( t * 100. > 0. ) {
-                    curve.push_back( curveXpoint );
-                    curve.push_back( curveYpoint );
-                }
+                // // leave index 0 as is
+                // if( t * 100. > 0. ) {
+                //     curve.push_back( curveXpoint );
+                //     curve.push_back( curveYpoint );
+                // }
                 
-                curveX.push_back( curveXpoint );
-                curveY.push_back( curveXpoint );
+                // curveX.push_back( curveXpoint );
+                // curveY.push_back( curveXpoint );
             }
-
-            // for( auto i: curveX) {
-            //     cout << "i ->" << i << '\n';
-            // }
-
-            // for( auto i: curveY) {
-            //     cout << "j ->" << i << '\n';
-            // }
             
-            float* curveX_arr = &curveX[0];
-            float* curveY_arr = &curveY[0];
-            
-            float* curve_arr = &curve[0];
+            // float* curveX_arr = &curveX[0];
+            // float* curveY_arr = &curveY[0];
+            // 
+            // float* curve_arr = &curve[0];
 
             return curve;
         }
@@ -267,7 +259,7 @@ class Draw {
             vertex.draw( col, 4 );
 
             vertex.arr = &arr_c[0];
-            vertex.draw( color, 39 );
+            vertex.draw( color, 10, GL_LINE_STRIP );
     }
     public:
         std::vector<float> color;
@@ -394,17 +386,20 @@ struct Ellipse {
     float x_4 = x_1;
     float y_4 = -y_1;
 
-    std::vector<float> c_vec_1 = d.calcQuarterBezier( x0, y0, x_1, y_1 );
-    std::vector<float> c_vec_2 = d.calcQuarterBezier( x0, y0, x_2, y_2 );
-    std::vector<float> c_vec_3 = d.calcQuarterBezier( x0, y0, x_3, y_3 );
-    std::vector<float> c_vec_4 = d.calcQuarterBezier( x0, y0, x_4, y_4 );
     
     void drawEllipse( vector<float> color ) {
+
+        std::vector<float> c_vec_1 = d.calcQuarterBezier( x0, y0, x_1, y_1 );
+        std::vector<float> c_vec_2 = d.calcQuarterBezier( x0, y0, x_2, y_2 );
+        std::vector<float> c_vec_3 = d.calcQuarterBezier( x0, y0, x_3, y_3 );
+        std::vector<float> c_vec_4 = d.calcQuarterBezier( x0, y0, x_4, y_4 );
+
         d.color = col1;
         d.circle( x0, y0, x_1, y_1, c_vec_1 );
         d.circle( x0, y0, x_2, y_2, c_vec_2 );
         d.circle( x0, y0, x_3, y_3, c_vec_3 );
-        d.circle( x0, y0, x_4, y_4, c_vec_4 );        
+        d.circle( x0, y0, x_4, y_4, c_vec_4 );   
+     
     }
 };
 
@@ -768,6 +763,10 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
 
 void* userData;
 
+// float[] c_arr_c_x = { 0., -1. };
+// float[] c_arr_c_y = {-1., };
+// vector<float> c_c = b.computeBezier(  );
+
 void c() {
     glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -853,6 +852,8 @@ void c() {
     
     vertex.arr = rect_arr_4;
     vertex.draw( col3, 1, GL_POINTS );
+
+    // glFlush();
 
 }
 
