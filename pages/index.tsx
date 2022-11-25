@@ -23,19 +23,6 @@ const Home: FC = () => {
 
         return ptr
     }
-        
-    useEffect( () => {
-        const e = document.getElementById( "canvas" ) as HTMLCanvasElement
-        const gl = e.getContext( "webgl" )
-        
-        console.log( e.width, e.height )
-
-        window.onresize = () => {
-
-            e.width = window.innerWidth
-            e.height = window.innerHeight            
-        }
-    })
 
     return (
         <div>

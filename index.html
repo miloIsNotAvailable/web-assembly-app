@@ -4784,9 +4784,6 @@ var ASM_CONSTS = {
     }
   Module["_glEnableVertexAttribArray"] = _glEnableVertexAttribArray;
 
-  function _glFlush() { GLctx['flush']() }
-  Module["_glFlush"] = _glFlush;
-
   function __glGenObject(n, buffers, createFunction, objectTable
       ) {
       for (var i = 0; i < n; i++) {
@@ -6744,7 +6741,6 @@ var asmLibraryArg = {
   "glDrawArrays": _glDrawArrays,
   "glEnable": _glEnable,
   "glEnableVertexAttribArray": _glEnableVertexAttribArray,
-  "glFlush": _glFlush,
   "glGenBuffers": _glGenBuffers,
   "glGetUniformLocation": _glGetUniformLocation,
   "glLineWidth": _glLineWidth,
@@ -7370,5 +7366,25 @@ run();
   <script type="module" src="/src/main.tsx"></script>
 </body>
 <canvas id="canvas" height="1080px" width="1920px"></canvas>
+<script type="text/javascript">
+  const doc = document.getElementById( "canvas" )
+  const gl = doc.getContext( "webgl2", { 
+    powerPreference: "high-performance",
+  } )
 
+  console.log( gl )
+
+  const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+  
+  
+  console.log( debugInfo )
+  if( debugInfo ) {
+    
+    const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+    
+    console.log( renderer )
+  }
+
+</script>
 </html>

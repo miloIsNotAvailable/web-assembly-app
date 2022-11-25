@@ -16,6 +16,9 @@ extern "C" {
 #endif
 // #define GLM_FORCE_PURE
 
+__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+  
 using std::vector;
 using namespace std;
 // typedef double float double;

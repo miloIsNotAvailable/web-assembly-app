@@ -4772,9 +4772,6 @@ var ASM_CONSTS = {
     }
   Module["_glEnableVertexAttribArray"] = _glEnableVertexAttribArray;
 
-  function _glFlush() { GLctx['flush']() }
-  Module["_glFlush"] = _glFlush;
-
   function __glGenObject(n, buffers, createFunction, objectTable
       ) {
       for (var i = 0; i < n; i++) {
@@ -6732,7 +6729,6 @@ var asmLibraryArg = {
   "glDrawArrays": _glDrawArrays,
   "glEnable": _glEnable,
   "glEnableVertexAttribArray": _glEnableVertexAttribArray,
-  "glFlush": _glFlush,
   "glGenBuffers": _glGenBuffers,
   "glGetUniformLocation": _glGetUniformLocation,
   "glLineWidth": _glLineWidth,
