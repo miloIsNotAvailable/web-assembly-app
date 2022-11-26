@@ -2,8 +2,9 @@
 #include <iostream>
 #include <emscripten/emscripten.h>
 #include<string>
-#include <GLES2/gl2.h>
-#include <GLES3/gl3.h>
+// #include <GLES2/gl2.h>
+// #include <GLES3/gl3.h>
+#include <GLES3/gl32.h>
 #include <EGL/egl.h>
 #include<math.h>
 #include <emscripten/html5.h> // emscripten module
@@ -33,6 +34,8 @@ class Render {
         "if(length(coord) > .5 )                  //outside of circle radius?\n"
         "    discard;\n"
         "\n"    
+        // "   vec2 r = gl_FragCoord.xy - vec2(1000., 1.);\n"
+        // "   if( length( r ) > 1000. ) { discard; }"
         "gl_FragColor = vec4(color, 1.0);\n"
         "}\0";
         
@@ -49,12 +52,31 @@ class Render {
         "void main() {\n"
         "   float u = aPos.x;\n"
         "   float v = aPos.y;\n"
-        "    gl_Position =  vec4(aPos.x * SMX, aPos.y * SMX + TMX, aPos.z, 1.);\n"
-        "    gl_PointSize = 10.;\n"
+        "   gl_Position =  vec4(aPos.x * SMX, aPos.y * SMX + TMX, aPos.z, 1.);\n"
+        "   gl_PointSize = 10.;\n"
         "}\n\0";
+
+        const char* geometryShaderSrc = R"glsl(
+            #version 200 es
+
+            layout(points) in;
+            layout(line_strip, max_vertices = 2) out;
+
+            void main()
+            {
+                gl_Position = gl_in[0].gl_Position + vec4(-0.1, 0.0, 0.0, 0.0);
+                EmitVertex();
+
+                gl_Position = gl_in[0].gl_Position + vec4(0.1, 0.0, 0.0, 0.0);
+                EmitVertex();
+
+                EndPrimitive();
+            }
+        )glsl";
 
         int vertexShader = glCreateShader(GL_VERTEX_SHADER);
         int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        int geometryShader = glCreateShader( GL_GEOMETRY_SHADER );
     public:
         int shaderProgram = glCreateProgram();
 
@@ -68,10 +90,15 @@ class Render {
             glShaderSource(r.fragmentShader, 1, &r.fragmentShaderSource, NULL);
             glCompileShader(r.fragmentShader);
 
+            // fragment shader
+            // glShaderSource(r.geometryShader, 1, &r.geometryShaderSrc, NULL);
+            // glCompileShader(r.geometryShader);
+
             // link shaders
             glAttachShader(r.shaderProgram, r.vertexShader);
             glAttachShader(r.shaderProgram, r.fragmentShader);
-            
+            // glAttachShader(r.shaderProgram, r.geometryShader);
+
             glLinkProgram(r.shaderProgram);
             clearShader( r );
             glUseProgram( r.shaderProgram );
@@ -84,6 +111,7 @@ class Render {
             // glDetachShader( r.shaderProgram, r.vertexShader );
             glDeleteShader( r.vertexShader );
             glDeleteShader( r.fragmentShader );
+            // glDeleteShader( r.geometryShader );
         }
 };
 

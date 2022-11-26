@@ -1,11 +1,12 @@
 #include <iostream>
 #include <emscripten/emscripten.h>
 #include<string>
-#include <GLES2/gl2.h>
-#include <GLES3/gl3.h>
+// #include <GLES2/gl2.h>
+#include <GLES3/gl32.h>
 #include <EGL/egl.h>
 #include<math.h>
 #include <vector>
+#include <GLFW/glfw3.h>
 #include "./app.cpp"
 
 // #ifndef __gles2_gl3_h_
@@ -145,8 +146,9 @@ static float *ty = &trans_y;
 EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userData)
 {
 
+    glClearColor(0.188, 0.188, 0.188, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
     glutPostRedisplay();
-
     if( !e->mouse.ctrlKey ) {
 
         (*ty) = *ty + .001 * e->deltaY;    
@@ -228,6 +230,8 @@ class Vertex {
             // glDrawArrays(GL_POINTS, 0, 199); // Draw the data using the element array
             shaders.clearShader( shaders );
             glDeleteProgram( shaders.shaderProgram );
+
+            glFlush();
         }
 };
 
@@ -402,7 +406,6 @@ struct Ellipse {
         d.circle( x0, y0, x_2, y_2, c_vec_2 );
         d.circle( x0, y0, x_3, y_3, c_vec_3 );
         d.circle( x0, y0, x_4, y_4, c_vec_4 );   
-     
     }
 };
 
@@ -654,7 +657,7 @@ EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userDat
 
     if( !mousedown ) return 0;
 
-    glClearColor(0.188, 0.188, 0.188, .0f);
+    glClearColor(0.188, 0.188, 0.188, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glutPostRedisplay();
@@ -723,7 +726,7 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
     append( &head, rect_3 );
     append( &head, rect_4 );
 
-    addMid( head );
+    // addMid( head );
 
     float arr[] = {
         position.x, position.y,
@@ -742,9 +745,10 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
 
     if( shape == 1 ) {
         ind += 6;
-        for( int i = 0; i < 12; i++ ) {
+        for( int i = 0; i < length( head ) * 2; i++ ) {
             // cout << arr[i] << endl;
             rects.push_back( arr[i] );
+            // rects.push_back( arr[i] );
         }
     }
 
@@ -766,15 +770,84 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
 
 void* userData;
 
-// float[] c_arr_c_x = { 0., -1. };
-// float[] c_arr_c_y = {-1., };
-// vector<float> c_c = b.computeBezier(  );
+vector<float> polyBezier( float r, float a ) {
+
+    vector<float> coords_a;
+    vector<float> coords_b;
+    vector<float> coords_c;
+    vector<float> coords_d;
+
+
+    for( int n = 1; n < 9; n++ ) {
+
+    float ax{ 0 };
+    float ay{ 0 };
+
+    for( int i = 0; i < 360; i ++ ) {
+
+        float theta = (float)i * 3.1415926f/180;
+
+        ax = r * cos( theta ) * 1080./1920.;
+        ay = r * sin( theta );
+
+        float bx = -1. * ax;
+        float by = ay;
+
+        float cx = ax;
+        float cy = -1. * ay;
+
+        float dx = -1. * ax;
+        float dy = -1. * ay;
+
+        // coords_a[i] =  ax;
+        // coords_a[i] =  ay;
+        
+        coords_a.push_back( 0. );
+        coords_a.push_back( 0. );
+        coords_a.push_back( ax );
+        coords_a.push_back( ay );
+
+        coords_b.push_back( 0. );
+        coords_b.push_back( 0. );
+        coords_b.push_back( bx );
+        coords_b.push_back( by );
+
+        coords_c.push_back( cx );
+        coords_c.push_back( cy );
+
+        coords_d.push_back( dx );
+        coords_d.push_back( dy );
+    }
+
+    }
+
+    // float* to_arr =&coords_a[0];
+
+    return coords_a;
+}
+
+// vector<float> polyB_vec = polyBezier( 1. ); 
+vector<float> poly_b = polyBezier( .5, 0. );
 
 void c() {
-    glClearColor(0.188, 0.188, 0.188, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    // glClearColor(0.188, 0.188, 0.188, 1.0f);
+    // glClear(GL_COLOR_BUFFER_BIT);
 
     Point* arr = convertToArr( head );
+
+    vector<float> e;
+    for( int i = 9; i < 360; i++ ) {
+        e.push_back( poly_b[i] );
+    }
+
+    vertex.arr = &poly_b[0];
+    vertex.draw( col1, 39, GL_TRIANGLE_STRIP );
+
+    // vertex.arr = &get<2>(poly_b)[0];
+    // vertex.draw( col1, 39, GL_LINE_STRIP );
+
+    // vertex.arr = &get<3>(poly_b)[0];
+    // vertex.draw( col1, 39, GL_LINE_STRIP );
 
     float rect_arr_1[] = {
         rect_1.x, rect_1.y
@@ -825,10 +898,6 @@ void c() {
         // arr[0].x, arr[0].y
     };
 
-    for( auto i: rects ) {
-        cout << i << endl;
-    }
-
     // d.vertex( &ellipses[0], ind_e );
     for( int i = 0; i < ind_e; i+=4 ) {
         
@@ -837,8 +906,8 @@ void c() {
         ellipse.drawEllipse( col1 );
     }
 
-    // d.color = col1_1;
-    // d.rect( &rects[0], ind );
+    d.color = col1_1;
+    d.rect( &rects[0], ind );
 
     vertex.arr = point_sqr_arr;
     vertex.draw( col1, 6, GL_TRIANGLES );
@@ -864,14 +933,6 @@ int main()
 {
     print( "Hello world!" );
 
-    // append( &head, Point { 0., 0. } );
-    // append( &head, Point { 1., 0. } );
-    // append( &head, Point { 1., -1. } );
-    // append( &head, Point { 0., -1. } );
-
-    // addMid( head );
-    // printList( head );
-
 	// setting up EmscriptenWebGLContextAttributes
 	EmscriptenWebGLContextAttributes attr;
 	emscripten_webgl_init_context_attributes(&attr);
@@ -887,13 +948,14 @@ int main()
     emscripten_set_mouseup_callback("#canvas", 0, 1, mouse_up_callback);	
     emscripten_set_mousemove_callback("#canvas", 0, 1, mouse_move);
 
-    glClearColor(0.984, 0.4627, 0.502, 1.0);
+    glClearColor(0.188, 0.188, 0.188, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
     vertex.drawAttrib();
 
     glutDisplayFunc( c );
     glutPostRedisplay();
+    printf("OpenGL version supported by this platform (%s): \n", glGetString(GL_VERSION));
     // glutMouseFunc(mousescroll);
     // glutMainLoop();
     // emscripten_request_animation_frame_loop( cb, userData );
