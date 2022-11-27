@@ -622,6 +622,10 @@ Point rect_2 = Point { position.dx, position.y };
 Point rect_3 = Point { position.dx, position.dy };
 Point rect_4 = Point { position.x, position.dy };
 
+Point triangle_1 = Point { position.x, position.y };
+Point triangle_2 = Point { position.x, position.y };
+Point triangle_3 = Point { position.x, position.y };
+
 EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userData)
 {
   printf("%s, screen: (%ld,%ld), client: (%ld,%ld),%s%s%s%s button: %hu, buttons: %hu, movement: (%ld,%ld), canvas: (%ld,%ld), timestamp: %lf\n",
@@ -642,6 +646,10 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
     rect_2.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
     rect_3.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
     rect_4.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
+    
+    triangle_1.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
+    triangle_2.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
+    triangle_3.collides( (e->screenX - mid)/mid, (mid_y - e->screenY)/mid_y );
 
     if( (e->screenX - mid)/mid <= dot.x + .2 && (e->screenX - mid)/mid >= dot.x - .2 ) {
         collision = true;
@@ -682,6 +690,10 @@ EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userDat
         rect_2.move( (e->screenX - mid)/mid, position.y + (mid_y - e->screenY)/mid_y );
         rect_3.move( (e->screenX - mid)/mid, position.y + (mid_y - e->screenY)/mid_y );
         rect_4.move( (e->screenX - mid)/mid, position.y + (mid_y - e->screenY)/mid_y );
+        
+        triangle_1.move( (e->screenX - mid)/mid, position.y + (mid_y - e->screenY)/mid_y );
+        triangle_2.move( (e->screenX - mid)/mid, position.y + (mid_y - e->screenY)/mid_y );
+        triangle_3.move( (e->screenX - mid)/mid, position.y + (mid_y - e->screenY)/mid_y );
     }
     // glClear(GL_COLOR_BUF/FER_BIT);
     
@@ -694,6 +706,16 @@ EM_BOOL mouse_move ( int eventType, const EmscriptenMouseEvent *e, void *userDat
 
         d.color = col1;
         d.rect( arr, 6 );
+    }
+
+    if( shape == 2 ) {
+        
+        triangle_1 = Point { position.x, position.y, triangle_1.collision };
+        triangle_2 = Point { position.dx, position.y, triangle_2.collision };
+        triangle_3 = Point { position.x, position.dy, triangle_3.collision };
+
+        d.color = col1;
+        d.rect( arr, 3 );
     }
 
     if( shape == 3 ) {
@@ -720,6 +742,10 @@ EM_BOOL mouse_up_callback( int eventType, const EmscriptenMouseEvent *e, void *u
     rect_2.collision = false;
     rect_3.collision = false;
     rect_4.collision = false;
+
+    triangle_1.collision = false;
+    triangle_2.collision = false;
+    triangle_3.collision = false;
 
     append( &head, rect_1 );
     append( &head, rect_2 );
@@ -843,12 +869,6 @@ void c() {
     vertex.arr = &poly_b[0];
     vertex.draw( col1, 39, GL_TRIANGLE_STRIP );
 
-    // vertex.arr = &get<2>(poly_b)[0];
-    // vertex.draw( col1, 39, GL_LINE_STRIP );
-
-    // vertex.arr = &get<3>(poly_b)[0];
-    // vertex.draw( col1, 39, GL_LINE_STRIP );
-
     float rect_arr_1[] = {
         rect_1.x, rect_1.y
     };
@@ -865,6 +885,24 @@ void c() {
         rect_4.x, rect_4.y
     };
 
+    float triangle_arr_1[] = {
+        triangle_1.x, triangle_1.y
+    };
+
+    float triangle_arr_2[] = {
+        triangle_2.x, triangle_2.y
+    };
+
+    float triangle_arr_3[] = {
+        triangle_3.x, triangle_3.y
+    };
+
+    float triangle_arr[] = {
+        triangle_1.x, triangle_1.y,
+        triangle_2.x, triangle_2.y,
+        triangle_3.x, triangle_3.y,
+    };
+
     float point_sqr_arr[] = {
 
         // main sides        
@@ -879,23 +917,6 @@ void c() {
         rect_4.x, rect_4.y,
         rect_3.x, rect_3.y,
         rect_2.x, rect_2.y,
-        
-        // midpoints
-        // arr[0].x, arr[0].y,
-        // arr[1].x, arr[1].y,
-        // arr[2].x, arr[2].y,
-        
-        // arr[2].x, arr[2].y,
-        // arr[3].x, arr[3].y,
-        // arr[4].x, arr[4].y,
-
-        // arr[4].x, arr[4].y,
-        // arr[5].x, arr[5].y,
-        // rect_1.x, rect_1.y,
-
-        // arr[5].x, arr[5].y,
-        // arr[7].x, arr[7].y,
-        // arr[0].x, arr[0].y
     };
 
     // d.vertex( &ellipses[0], ind_e );
@@ -924,6 +945,16 @@ void c() {
     
     vertex.arr = rect_arr_4;
     vertex.draw( col3, 1, GL_POINTS );
+
+    vertex.arr = triangle_arr_1;
+    vertex.draw( col3, 1, GL_POINTS );
+    vertex.arr = triangle_arr_2;
+    vertex.draw( col3, 1, GL_POINTS );
+    vertex.arr = triangle_arr_3;
+    vertex.draw( col3, 1, GL_POINTS );
+
+    vertex.arr = triangle_arr;
+    vertex.draw( col1, 3, GL_TRIANGLES );
 
     // glFlush();
 
