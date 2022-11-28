@@ -8,6 +8,7 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 #include "./app.cpp"
+#include "./render.cpp"
 
 // #ifndef __gles2_gl3_h_
 // #define __gles2_gl3_h_ 1
@@ -803,7 +804,6 @@ vector<float> polyBezier( float r, float a ) {
     vector<float> coords_c;
     vector<float> coords_d;
 
-
     for( int n = 1; n < 9; n++ ) {
 
     float ax{ 0 };
@@ -855,9 +855,24 @@ vector<float> polyBezier( float r, float a ) {
 // vector<float> polyB_vec = polyBezier( 1. ); 
 vector<float> poly_b = polyBezier( .5, 0. );
 
+Vert vert;
+
+float arr_vert[] = { 
+        -1., -1.,
+        -1., 0.,
+        1., -1.,
+
+        -1., 0.,
+        1., 0.,
+        1., -1.
+};
+
 void c() {
     // glClearColor(0.188, 0.188, 0.188, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT);
+
+    vert.arr = arr_vert;
+    vert.draw( col1, 6, *p, *ty, GL_TRIANGLES );
 
     Point* arr = convertToArr( head );
 
