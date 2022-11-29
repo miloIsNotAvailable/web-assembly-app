@@ -872,17 +872,10 @@ void c() {
     // glClear(GL_COLOR_BUFFER_BIT);
 
     vert.arr = arr_vert;
-    vert.draw( col1, 6, *p, *ty, GL_TRIANGLES );
+    // vert.draw( col1, 6, *p, *ty, GL_TRIANGLES );
+    vert.drawLine( col1, 6, *p, *ty, GL_TRIANGLES );
 
     Point* arr = convertToArr( head );
-
-    vector<float> e;
-    for( int i = 9; i < 360; i++ ) {
-        e.push_back( poly_b[i] );
-    }
-
-    vertex.arr = &poly_b[0];
-    vertex.draw( col1, 39, GL_TRIANGLE_STRIP );
 
     float rect_arr_1[] = {
         rect_1.x, rect_1.y
