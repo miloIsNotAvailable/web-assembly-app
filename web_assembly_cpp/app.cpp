@@ -102,7 +102,7 @@ class Render {
             glLinkProgram(r.shaderProgram);
             clearShader( r );
             glUseProgram( r.shaderProgram );
-            
+                
         }
 
         void clearShader( Render r ) {

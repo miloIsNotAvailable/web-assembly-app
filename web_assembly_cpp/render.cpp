@@ -247,8 +247,8 @@ class Vert {
             }
 
             void main(){
-            vec2 st = gl_FragCoord.xy/u_resolution.xy;
-            st.x *= u_resolution.x/u_resolution.y;
+                vec2 st = gl_FragCoord.xy/u_resolution.xy;
+                st.x *= u_resolution.x/u_resolution.y;
                 
                 vec3 col = vec3( 1. ); 
                 vec2 p = -1. + 2. * st;
@@ -260,8 +260,7 @@ class Vert {
                 // col = mix(vec3(0.), col, lineSegment(st, cp, cp2));
                 // col = mix(vec3(0.), col, lineSegment(st, cp2, vec2(0.170,0.820)));
                 
-                col = mix(vec3(0.), col, lineSegment(st, cp2, vec2(0.170,0.820)));
-                
+                col = mix(vec3(0.), col, lineSegment(st, cp2, vec2(0.170,0.820)));                
 
                 gl_FragColor = vec4( col, 1. );
             })glsl";

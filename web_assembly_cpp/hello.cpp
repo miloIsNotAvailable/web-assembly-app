@@ -871,9 +871,9 @@ void c() {
     // glClearColor(0.188, 0.188, 0.188, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT);
 
-    vert.arr = arr_vert;
+    // vert.arr = arr_vert;
     // vert.draw( col1, 6, *p, *ty, GL_TRIANGLES );
-    vert.drawLine( col1, 6, *p, *ty, GL_TRIANGLES );
+    // vert.drawLine( col1, 6, *p, *ty, GL_TRIANGLES );
 
     Point* arr = convertToArr( head );
 
@@ -936,7 +936,7 @@ void c() {
     }
 
     d.color = col1_1;
-    d.rect( &rects[0], ind );
+    // d.rect( &rects[0], ind );
 
     vertex.arr = point_sqr_arr;
     vertex.draw( col1, 6, GL_TRIANGLES );
